@@ -144,11 +144,12 @@ object Main {
         // move file to resources/user-pipeline/inputFile.name
         // move the config file to the correct location
         // execute that code with its toml
+        val path_fix: String = if (IS_WINDOWS) configFile.path[0].toString() else ""
 
         val compiledTest = Reflect.compile(
             "com.plantestic.test.${targetFile.nameWithoutExtension}",
             targetFile.readText()
-        ).create(configFile.path)
+        ).create(path_fix + configFile.path)
         try {
             compiledTest.call("test")
         }
