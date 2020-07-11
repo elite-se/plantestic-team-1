@@ -2,11 +2,18 @@ package de.unia.se.plantestic
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import org.joor.Reflect
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 
 object Main {
+
+    private val IS_WINDOWS = System.getProperty("os.name").contains("indow")
 
     class Cli : CliktCommand(
         printHelpOnEmptyArgs = true,
@@ -79,17 +86,43 @@ object Main {
             .required()
         private val output: String by option(help = "Output folder where the test cases should be written to. Default is './plantestic-test'")
             .default("./plantestic-test")
+        private val execute: Boolean? by option(help = "Run the pipeline and execute the test").flag(default = false)
+        private val config: String? by option(help = ".toml file which is to be used by the pipeline")
 
         override fun run() {
             val inputFile = File(input).normalize()
             val outputFolder = File(output).normalize()
+            val tempOutputFolder = File("$output/temp").normalize()
 
             if (!inputFile.exists()) {
                 echo("Input file ${inputFile.absolutePath} does not exist.")
                 return
             }
 
-            runTransformationPipeline(inputFile, outputFolder)
+            echo("###Welcome to the plantestic pipeline###")
+            runTransformationPipeline(inputFile, tempOutputFolder)
+
+            val generatedSourceFile = tempOutputFolder.listFiles()?.first()
+            if (generatedSourceFile == null) throw Exception("Something went wrong with generating the file")
+            //echo("Generated source file is $generatedSourceFile")
+            val targetString = outputFolder.absolutePath + "/" + generatedSourceFile.name
+            //echo("Target file is $targetString")
+            Files.move(generatedSourceFile.toPath(), Paths.get(targetString), StandardCopyOption.REPLACE_EXISTING)
+            val targetFile = File(targetString)
+            echo("Generated test ${targetFile.path}")
+
+            if (execute == null || execute == false) return
+            if (config == null) {
+                echo("Config file must be defined if the execute flag is used.")
+                return
+            }
+            val configFile = File(config).normalize()
+            if (!configFile.exists()) {
+                echo("Config file ${inputFile.absolutePath} does not exist.")
+                return
+            }
+            executeTestCase(targetFile, configFile)
+            print("The test was successful")
         }
     }
 
@@ -103,6 +136,26 @@ object Main {
 
         println("Generating code into $outputFolder")
         AcceleoCodeGenerator.generateCode(restAssuredModel, outputFolder)
+    }
+
+    fun executeTestCase(targetFile: File, configFile: File) {
+        //Files.move(inputFile.toPath(), path)
+
+        // move file to resources/user-pipeline/inputFile.name
+        // move the config file to the correct location
+        // execute that code with its toml
+
+        val compiledTest = Reflect.compile(
+            "com.plantestic.test.${targetFile.nameWithoutExtension}",
+            targetFile.readText()
+        ).create(configFile.path)
+        try {
+            compiledTest.call("test")
+        }
+        catch (e: java.lang.reflect.InvocationTargetException) {
+            print(e.cause)  // Find a way to ignore invocation target exception and report only the cause leading to it
+        }
+        print("The test was successful")
     }
 
     @JvmStatic
