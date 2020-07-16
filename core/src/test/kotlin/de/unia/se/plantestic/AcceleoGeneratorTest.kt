@@ -19,10 +19,11 @@ class AcceleoGeneratorTest : StringSpec({
         // Now compile the resulting code to check for syntax errors
         val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testminimal_hello.java" }.first()
         printCode(generatedSourceFile)
-        Reflect.compile(
-            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+        val compiledTest = Reflect.compile(
+            generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
-        ).create(MINIMAL_EXAMPLE_CONFIG_FILE.path)
+        )!!.create()!!
+        invokeCreation(compiledTest, MINIMAL_EXAMPLE_CONFIG_FILE.path)
     }
 
     "Transform a Rest Assured EObject input to Java Code for complex hello" {
@@ -36,10 +37,11 @@ class AcceleoGeneratorTest : StringSpec({
         // Now compile the resulting code to check for syntax errors
         val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testcomplex_hello.java" }.first()
         printCode(generatedSourceFile)
-        Reflect.compile(
-            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+        val compiledTest = Reflect.compile(
+            generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
-        ).create(COMPLEX_HELLO_CONFIG_FILE.path)
+        )!!.create()!!
+        invokeCreation(compiledTest, COMPLEX_HELLO_CONFIG_FILE.path)
     }
 
     "Transform a Rest Assured EObject input to Java Code for rerouting" {
@@ -53,10 +55,11 @@ class AcceleoGeneratorTest : StringSpec({
         // Now compile the resulting code to check for syntax errors
         val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testrerouting.java" }.first()
         printCode(generatedSourceFile)
-        Reflect.compile(
-            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+        val compiledTest = Reflect.compile(
+            generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
-        ).create(REROUTE_CONFIG_FILE.path)
+        )!!.create()!!
+        invokeCreation(compiledTest, REROUTE_CONFIG_FILE.path)
     }
 
     "Transform a Rest Assured EObject input to Java Code for xcall" {
@@ -70,10 +73,11 @@ class AcceleoGeneratorTest : StringSpec({
         // Now compile the resulting code to check for syntax errors
         val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testxcall.java" }.first()
         printCode(generatedSourceFile)
-        Reflect.compile(
-            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+        val compiledTest = Reflect.compile(
+            generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
-        ).create(XCALL_CONFIG_FILE.path)
+        )!!.create()!!
+        invokeCreation(compiledTest, XCALL_CONFIG_FILE.path)
     }
 }) {
     companion object {
@@ -93,6 +97,11 @@ class AcceleoGeneratorTest : StringSpec({
 
         fun printCode(file: File) {
             file.readLines().forEach { line -> println(line) }
+        }
+
+        fun invokeCreation(compiledTest: Reflect, configFilePath: String) {
+            compiledTest.call("setConfigFilePath", configFilePath)
+            compiledTest.call("setupConfig")
         }
     }
 }
