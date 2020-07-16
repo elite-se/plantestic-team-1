@@ -77,8 +77,8 @@ object Main {
 
         private val input: String by option(help = "Path to the PlantUML file containing the API specification.")
             .required()
-        private val output: String by option(help = "Output folder where the test cases should be written to. Default is './plantestic-test'")
-            .default("./plantestic-test")
+        private val output: String by option(help = "Output folder where the test cases should be written to. Default is '.../test-suite/tests'")
+            .default("../test-suite/tests")
 
         override fun run() {
             val inputFile = File(input).normalize()
