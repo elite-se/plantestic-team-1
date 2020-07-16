@@ -44,7 +44,7 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
                 final String defaultConfigPath = "[ testScenario.testScenarioName /].toml";
                 URL url = Thread.currentThread().getContextClassLoader().getResource(defaultConfigPath);
                 if (url == null) {
-                    throw new FileNotFoundException(defaultConfigPath + "was not found!");
+                    throw new FileNotFoundException(defaultConfigPath + " was not found!");
                 }
                 tomlFilePath = url.getFile();
             }
