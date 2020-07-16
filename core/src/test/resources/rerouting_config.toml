@@ -3,12 +3,12 @@ countryCode1 = "Ger"
 positionCountryCode1 = "Muc"
 sourceEventType1 = "Hallo"
 eventId1 = "321"
-url = "D:\this\could\be\a\web\link\as\well.yaml"
 
 [VM]
     username = "Test"
     password = "password"
     path = "/Voicemanager"
+    url = "D:\\this\\could\\be\\a\\web\\link\\as\\well.yaml"
 
 [CRS]
     username = "Test"

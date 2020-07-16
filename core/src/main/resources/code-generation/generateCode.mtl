@@ -3,7 +3,7 @@
 
 [template public generateTestScenario(testScenario : TestScenario) post(trim())]
 [comment @main /]
-[file ('Test'.concat(testScenario.testScenarioName.concat('.java')), false, 'UTF-8')]
+[file ('Test_'.concat(testScenario.testScenarioName.concat('.java')), false, 'UTF-8')]
 package com.plantestic.test;
 
 import java.util.Arrays;
@@ -23,25 +23,22 @@ import javax.script.ScriptException;
 import org.junit.jupiter.api.Test;
 import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
 
-public class [ 'Test'.concat(testScenario.testScenarioName) /] {
+public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
 
 	Map<String, Object> paramsMap = new HashMap();
 	ScriptEngine engine;
 	StringSubstitutor substitutor;
 
-	private OpenApiValidationFilter validationFilter;
-
 	// FIXME: no IS_WINDOWS please
 	private static final boolean IS_WINDOWS = System.getProperty( "os.name" ).contains( "indow" );
 
-	public [ 'Test'.concat(testScenario.testScenarioName) /](String configFile) throws Exception {
+	public [ 'Test_'.concat(testScenario.testScenarioName) /](String configFile) throws Exception {
 		try {
 			String osAppropriatePath = IS_WINDOWS ? configFile.substring(1) : configFile;
 			Path path = Paths.get(osAppropriatePath);
 
 			paramsMap = unnestTomlMap("", new Toml().read(new String(Files.readAllBytes(path))).toMap());
 			substitutor = new StringSubstitutor(paramsMap);
-			validationFilter = OpenApiValidationFilter(paramsMap.get("url"));
 			engine = new ScriptEngineManager().getEngineByName("JavaScript");
 		} catch(Exception exception) {
 			System.out.println("An Error occured, possible during reading the TOML config file: " + exception);
@@ -98,7 +95,7 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
 
 [template private generateTestRoundtrip(testRoundtrip : TestRoundtrip) post(trim())]
 	[if (testRoundtrip.requestspecification.requestdatum->notEmpty())]
-[testRoundtrip.requestspecification.generadeAddRequestParams()/]
+[testRoundtrip.requestspecification.generateAddRequestParams()/]
 	[/if]
 Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
         [testRoundtrip.requestspecification.generateGivenPart()/]
@@ -112,7 +109,7 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
 	[/if]
 [/template]
 
-[template private generadeAddRequestParams(requestSpecification : RequestSpecification)]
+[template private generateAddRequestParams(requestSpecification : RequestSpecification)]
 	[if (requestSpecification.requestdatum->notEmpty())]
 		[for (requestDatum : RequestDatum | requestSpecification.requestdatum)]
 paramsMap.put("[requestDatum.variableName/]", "[requestDatum.value/]");
@@ -127,7 +124,7 @@ paramsMap.put("[requestDatum.variableName/]", "[requestDatum.value/]");
 .param("[requestDatum.variableName/]", subst("${[requestDatum.variableName/]}"))
 		[/for]
 	[/if]
-.filter(validationFilter)
+.filter(OpenApiValidationFilter(subst("${[requestSpecification.receiver/].url}")))
 [/template]
 
 [template private generateWhenPart(requestSpecification : RequestSpecification) post(trim())]
