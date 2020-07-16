@@ -27,9 +27,11 @@ class End2EndTest : StringSpec({
         // Now compile the resulting code to check for syntax errors
         val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testminimal_hello_puml.java" }.first()
         val compiledTest = Reflect.compile(
-            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+            generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
-        ).create(MINIMAL_EXAMPLE_CONFIG_FILE.path)
+        ).create()
+        compiledTest.call("setConfigFilePath", MINIMAL_EXAMPLE_CONFIG_FILE.path)
+        compiledTest.call("setupConfig")
         compiledTest.call("test")
 
         // Check if we received a correct request
@@ -54,9 +56,11 @@ class End2EndTest : StringSpec({
         // Now compile the resulting code to check for syntax errors
         val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testcomplex_hello_puml.java" }.first()
         val compiledTest = Reflect.compile(
-            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+            generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
-        ).create(COMPLEX_HELLO_CONFIG_FILE.path)
+        ).create()
+        compiledTest.call("setConfigFilePath", COMPLEX_HELLO_CONFIG_FILE.path)
+        compiledTest.call("setupConfig")
         compiledTest.call("test")
 
         // Check if we received a correct request
@@ -95,9 +99,11 @@ class End2EndTest : StringSpec({
         // Now compile the resulting code to check for syntax errors
         val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testrerouting_puml.java" }.first()
         val compiledTest = Reflect.compile(
-            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+            generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
-        ).create(REROUTE_CONFIG_FILE.path)
+        ).create()
+        compiledTest.call("setConfigFilePath", REROUTE_CONFIG_FILE.path)
+        compiledTest.call("setupConfig")
         try { compiledTest.call("test") } catch (e: Exception) { }
 
         // Check if we received a correct request
@@ -138,9 +144,11 @@ class End2EndTest : StringSpec({
         // Now compile the resulting code to check for syntax errors
         val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testrerouting_puml.java" }.first()
         val compiledTest = Reflect.compile(
-            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+            generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
-        ).create(REROUTE_CONFIG_FILE.path)
+        ).create()
+        compiledTest.call("setConfigFilePath", REROUTE_CONFIG_FILE.path)
+        compiledTest.call("setupConfig")
         compiledTest.call("test")
 
         // Check if we received a correct request
@@ -174,9 +182,10 @@ class End2EndTest : StringSpec({
         // Now compile the resulting code to check for syntax errors
         val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testrerouting_puml.java" }.first()
         val compiledTest = Reflect.compile(
-            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+            generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
         ).create(REROUTE_CONFIG_FILE.path)
+        compiledTest.call("setupConfig")
         compiledTest.call("test")
 
         // Check if we received a correct request
@@ -215,9 +224,11 @@ class End2EndTest : StringSpec({
         // Now compile the resulting code to check for syntax errors
         val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testrerouting_puml.java" }.first()
         val compiledTest = Reflect.compile(
-            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+            generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
-        ).create(REROUTE_CONFIG_FILE.path)
+        ).create()
+        compiledTest.call("setConfigFilePath", REROUTE_CONFIG_FILE.path)
+        compiledTest.call("setupConfig")
         compiledTest.call("test")
 
         // Check if we received a correct request
@@ -236,9 +247,11 @@ class End2EndTest : StringSpec({
         // Now compile the resulting code to check for syntax errors
         val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testxcall_puml.java" }.first()
         val compiledTest = Reflect.compile(
-            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+            generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
-        ).create(XCALL_CONFIG_FILE.path)
+        ).create()
+        compiledTest.call("setConfigFilePath", XCALL_CONFIG_FILE.path)
+        compiledTest.call("setupConfig")
         compiledTest.call("test")
 
         // Check if we received a correct request
