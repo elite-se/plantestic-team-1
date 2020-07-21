@@ -1,0 +1,11 @@
+[comment encoding = UTF-8 /]
+[module generateCode('http://www.example.org/RestAssured')]
+
+[template public generateTomlTemplate(testScenario : TestScenario) post(trim())]
+[comment @main /]
+[file (testScenario.testScenarioName.concat('.toml'), false, 'UTF-8')]
+
+
+
+[/file]
+[/template]
