@@ -74,6 +74,16 @@ public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
 	    return (Boolean) engine.eval(substCondition);
 	}
 
+	/// Helper method to determine the necessary filter for response validation.
+	/// If a Swagger file is specified, the filter returned checks the response format.
+	/// If not, an empty filter is returned.
+	private OpenApiValidationFilter responseFilter(String swaggerKey) {
+        if (paramsMap.contains(swaggerKey))
+            return OpenApiValidationFilter(subst("${" + swaggerKey + "}"));
+        else
+            return OpenApiValidationFilter();
+	}
+
     /// Helper method to flatten the tree-like structure of a TOML file.
     /// Here, we use the path of an item as the key and the item itself as the value.
     /// The path of an item separated by dots, e.g. "A.B.item".
@@ -124,7 +134,7 @@ paramsMap.put("[requestDatum.variableName/]", "[requestDatum.value/]");
 .param("[requestDatum.variableName/]", subst("${[requestDatum.variableName/]}"))
 		[/for]
 	[/if]
-.filter(OpenApiValidationFilter(subst("${[requestSpecification.receiver/].url}")))
+.filter(responseFilter([requestSpecification.receiver/]))
 [/template]
 
 [template private generateWhenPart(requestSpecification : RequestSpecification) post(trim())]
