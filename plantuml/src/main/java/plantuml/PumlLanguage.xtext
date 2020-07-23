@@ -346,20 +346,20 @@ Else returns UmlElementsContainer:
 	umlElements+=(SequenceElement)*;
 
 Group returns UmlElementsContainer:
-	Sleep
+	SleepBefore
 	| Timeout
 	| Normal
 ;
 
-Sleep returns UmlElementsContainer:
-	{Sleep}
-	'GROUP' 'sleep(' sleep+=INT ')'
+SleepBefore returns UmlElementsContainer:
+	{SleepBefore}
+	'GROUP' 'sleepBefore(' sleepBefore=INT ')'
 	umlElements+=(SequenceElement)*
 	=> 'END';	
 
 Timeout returns UmlElementsContainer:
 	{Timeout}
-	'GROUP' 'timeout(' timeout+=INT ')'
+	'GROUP' 'timeout(' timeout=INT ')'
 	umlElements+=(SequenceElement)*
 	=> 'END';
 

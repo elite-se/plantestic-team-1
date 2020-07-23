@@ -26,13 +26,13 @@ mapping SequenceUml::transformUmlDiagram(): Scenario {
         var sequenceElement : SequenceElement := umlElements->at(umlElementsIndex);
         
         var sleepBefore := 0;
-        if (sequenceElement.oclIsTypeOf(Sleep)) {
-        	var sleep : Sleep := sequenceElement.oclAsType(Sleep);
-        	var sleepBefore : Integer := sleep.sleepBefore;
+        if (sequenceElement.oclIsTypeOf(SleepBefore)) {
+        	var sleep : SleepBefore := sequenceElement.oclAsType(SleepBefore);
+        	sleepBefore := sleep.sleepBefore;
         	
-        	umlElementsindex := umlElementsIndex + 1;
-        	sequenceElement := umlElements.at(umlElementsIndex);
-        }
+        	umlElementsIndex := umlElementsIndex + 1;
+        	sequenceElement := umlElements->at(umlElementsIndex);
+        };
         
         if (sequenceElement.oclIsTypeOf(UseLeft)) {
             var useLeft : UseLeft := sequenceElement.oclAsType(UseLeft);
@@ -94,7 +94,7 @@ mapping SequenceUml::transformUmlDiagram(): Scenario {
             roundtripElement.precondition := alternative.text;
             roundtrip += roundtripElement;
             roundtripId := roundtripId + 1;
-        }
+        };
         umlElementsIndex := umlElementsIndex + 1;
     };
 }

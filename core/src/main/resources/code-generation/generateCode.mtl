@@ -108,6 +108,9 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
 	[if (testRoundtrip.requestspecification.requestdatum->notEmpty())]
 [testRoundtrip.requestspecification.generadeAddRequestParams()/]
 	[/if]
+	[if (testRoundtrip.sleepBefore > 0)]
+Thread.sleep([testRoundtrip.sleepBefore/]);	
+	[/if]
 Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
         [testRoundtrip.requestspecification.generateGivenPart()/]
     .when()
