@@ -101,6 +101,8 @@ dependencies {
 
     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.1.7"
     testImplementation "io.mockk:mockk:1.8.9"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:5.3.1"
+    testImplementation "com.atlassian.oai:swagger-request-validator-restassured:2.10.0"
 
     // End-2-End Test
     testImplementation "org.jooq:joor-java-8:0.9.12"
@@ -111,8 +113,6 @@ dependencies {
     testRuntimeOnly "com.moandjiezana.toml:toml4j:0.7.2"
     testRuntimeOnly "io.rest-assured:rest-assured:3.0.0"
     testRuntimeOnly "javax.xml.bind:jaxb-api:2.3.1"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.3.1"
-    testRuntimeOnly "com.atlassian.oai:swagger-request-validator-restassured:2.10.0"
 
     ktlint "com.github.shyiko:ktlint:0.29.0"
 }

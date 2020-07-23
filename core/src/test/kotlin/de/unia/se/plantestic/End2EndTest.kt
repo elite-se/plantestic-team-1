@@ -14,7 +14,7 @@ import io.kotlintest.specs.StringSpec
 import org.joor.Reflect
 import java.io.File
 
-val wireMockServer = WireMockServer(8080)
+private val wireMockServer = WireMockServer(8080)
 
 class End2EndTest : StringSpec({
     "End2End test receives request on mock server for the minimal hello" {
