@@ -118,7 +118,7 @@ object Main {
             }
             val configFile = File(config).normalize()
             if (!configFile.exists()) {
-                echo("Config file ${inputFile.absolutePath} does not exist.")
+                echo("Config file ${configFile.absolutePath} does not exist.")
                 return
             }
             executeTestCase(targetFile, configFile)
