@@ -94,11 +94,15 @@ object Main {
                 return
             }
 
-            runTransformationPipeline(inputFile, outputFolder, tomlOutputFolder, !dontGenerateTomlTemplate)
+            if (dontGenerateTomlTemplate) {
+                runTransformationPipeline(inputFile, outputFolder)
+            } else {
+                runTransformationPipeline(inputFile, outputFolder, tomlOutputFolder)
+            }
         }
     }
 
-    fun runTransformationPipeline(inputFile: File, outputFolder: File, tomlTemplateOutput: File, generateToml: Boolean = true) {
+    fun runTransformationPipeline(inputFile: File, outputFolder: File, tomlTemplateOutput: File? = null) {
         MetaModelSetup.doSetup()
 
         val pumlDiagramModel = PumlParser.parse(inputFile.absolutePath)
@@ -108,7 +112,7 @@ object Main {
 
         println("Generating code into $outputFolder")
         AcceleoCodeGenerator.generateCode(restAssuredModel, outputFolder)
-        if (generateToml) {
+        if (tomlTemplateOutput != null) {
             println("Generating toml template into $tomlTemplateOutput")
             AcceleoTomlGenerator.generateToml(restAssuredModel, tomlTemplateOutput)
         }
