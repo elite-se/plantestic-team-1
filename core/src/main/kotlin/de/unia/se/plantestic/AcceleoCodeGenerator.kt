@@ -15,5 +15,9 @@ object AcceleoCodeGenerator {
         val restAssuredAcceleoGenerator = RestAssuredAcceleoGenerator()
         restAssuredAcceleoGenerator.initialize(inputModel, targetFolder, emptyList())
         restAssuredAcceleoGenerator.doGenerate(BasicMonitor())
+
+        val tomlAcceleoGenerator = TomlAcceleoGenerator()
+        tomlAcceleoGenerator.initialize(inputModel, targetFolder, emptyList())
+        tomlAcceleoGenerator.doGenerate(BasicMonitor())
     }
 }
