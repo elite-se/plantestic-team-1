@@ -1,0 +1,5 @@
+[B]
+    username = 'Test'
+    password = 'password'
+    path = ''
+    url = 'src/test/resources/minimal_swagger_response.yml'

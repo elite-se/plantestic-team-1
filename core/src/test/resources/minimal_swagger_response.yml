@@ -1,0 +1,20 @@
+swagger: "2.0"
+produces:
+  - application/json
+info:
+  title: 'One response field'
+  version: '1.0'
+paths:
+  /hello:
+    get:
+      responses:
+        200:
+          description: 'Testing a single field in an object'
+          schema:
+            type: object
+            properties:
+              test:
+                type: string
+                description: A test field
+            required:
+              - test

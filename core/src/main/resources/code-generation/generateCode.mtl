@@ -3,10 +3,13 @@
 
 [template public generateTestScenario(testScenario : TestScenario) post(trim())]
 [comment @main /]
-[file ('Test'.concat(testScenario.testScenarioName.concat('.java')), false, 'UTF-8')]
+[file ('Test_'.concat(testScenario.testScenarioName.concat('.java')), false, 'UTF-8')]
 import com.moandjiezana.toml.Toml;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import io.restassured.filter.Filter;
+import io.restassured.filter.log.ErrorLoggingFilter;
+import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
 import org.apache.commons.text.StringSubstitutor;
 import org.hamcrest.collection.IsIn;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class [ 'Test'.concat(testScenario.testScenarioName) /] {
+public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
 
 	Map<String, Object> paramsMap = new HashMap();
 	ScriptEngine engine;
@@ -85,6 +88,16 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
 	    return (Boolean) engine.eval(substCondition);
 	}
 
+	/// Helper method to determine the necessary filter for response validation.
+	/// If a Swagger file is specified, the filter returned checks the response format.
+	/// If not, an ErrorLoggingFilter is returned which does nothing but printing errors. Granted, kinda hacky.
+	private Filter responseFilter(String swaggerKey) {
+        if (paramsMap.containsKey(swaggerKey))
+            return new OpenApiValidationFilter(subst("${" + swaggerKey + "}"));
+        else
+            return new ErrorLoggingFilter();
+	}
+
     /// Helper method to flatten the tree-like structure of a TOML file.
     /// Here, we use the path of an item as the key and the item itself as the value.
     /// The path of an item separated by dots, e.g. "A.B.item".
@@ -106,7 +119,7 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
 
 [template private generateTestRoundtrip(testRoundtrip : TestRoundtrip) post(trim())]
 	[if (testRoundtrip.requestspecification.requestdatum->notEmpty())]
-[testRoundtrip.requestspecification.generadeAddRequestParams()/]
+[testRoundtrip.requestspecification.generateAddRequestParams()/]
 	[/if]
 Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
         [testRoundtrip.requestspecification.generateGivenPart()/]
@@ -120,7 +133,7 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
 	[/if]
 [/template]
 
-[template private generadeAddRequestParams(requestSpecification : RequestSpecification)]
+[template private generateAddRequestParams(requestSpecification : RequestSpecification)]
 	[if (requestSpecification.requestdatum->notEmpty())]
 		[for (requestDatum : RequestDatum | requestSpecification.requestdatum)]
 paramsMap.put("[requestDatum.variableName/]", "[requestDatum.value/]");
@@ -135,6 +148,7 @@ paramsMap.put("[requestDatum.variableName/]", "[requestDatum.value/]");
 .param("[requestDatum.variableName/]", subst("${[requestDatum.variableName/]}"))
 		[/for]
 	[/if]
+.filter(responseFilter("[requestSpecification.receiver/].url"))
 [/template]
 
 [template private generateWhenPart(requestSpecification : RequestSpecification) post(trim())]

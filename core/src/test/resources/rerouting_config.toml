@@ -8,6 +8,7 @@ eventId1 = "321"
     username = "Test"
     password = "password"
     path = "/Voicemanager"
+    url = "D:\\this\\could\\be\\a\\web\\link\\as\\well.yaml"
 
 [CRS]
     username = "Test"
