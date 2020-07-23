@@ -23,6 +23,7 @@ mapping Scenario::scenario2testScenario(): TestScenario {
      log('Transforming Roundtrip to TestRoundtrip');
 
      testRoundtripName := self.roundtripName;
+     sleepBefore := self.sleepBefore;
 
      if(self.precondition != null) then {
              precondition := self.precondition;
