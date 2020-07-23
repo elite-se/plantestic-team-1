@@ -97,7 +97,6 @@ class SwaggerResponseValidationTest : StringSpec({
             compiledTest.call("setConfigFilePath", configFilePath)
             compiledTest.call("setupConfig")
         }
-
     }
 
     override fun beforeTest(description: Description) {
