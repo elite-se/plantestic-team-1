@@ -346,6 +346,24 @@ Else returns UmlElementsContainer:
 	umlElements+=(SequenceElement)*;
 
 Group returns UmlElementsContainer:
+	Sleep
+	| Timeout
+	| Normal
+;
+
+Sleep returns UmlElementsContainer:
+	{Sleep}
+	'GROUP' 'sleep(' sleep+=INT ')'
+	umlElements+=(SequenceElement)*
+	=> 'END';	
+
+Timeout returns UmlElementsContainer:
+	{Timeout}
+	'GROUP' 'timeout(' timeout+=INT ')'
+	umlElements+=(SequenceElement)*
+	=> 'END';
+
+Normal returns UmlElementsContainer:
 	{Group}
 	('GROUP' | 'OPT' | 'LOOP' | 'PAR' | 'BREAK' | 'CRITICAL') test+=(PUMLID)*
 	umlElements+=(SequenceElement)*

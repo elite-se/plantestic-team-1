@@ -1,0 +1,13 @@
+SEQUENCE @startuml
+
+PARTICIPANT A
+PARTICIPANT B
+
+GROUP sleep(2000)
+	A -> B : GET "/hello"
+	activate B
+	B -> A : 200
+	deactivate B
+END
+
+@enduml
