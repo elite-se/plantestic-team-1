@@ -25,7 +25,7 @@ class End2EndTest : StringSpec({
         runTransformationPipeline(MINIMAL_EXAMPLE_INPUT_FILE, OUTPUT_FOLDER)
 
         // Now compile the resulting code to check for syntax errors
-        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testminimal_hello_puml.java" }.first()
+        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Test_minimal_hello_puml.java" }.first()
         val compiledTest = Reflect.compile(
             generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
@@ -54,7 +54,7 @@ class End2EndTest : StringSpec({
         runTransformationPipeline(COMPLEX_HELLO_INPUT_FILE, OUTPUT_FOLDER)
 
         // Now compile the resulting code to check for syntax errors
-        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testcomplex_hello_puml.java" }.first()
+        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Test_complex_hello_puml.java" }.first()
         val compiledTest = Reflect.compile(
             generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
@@ -97,7 +97,7 @@ class End2EndTest : StringSpec({
         runTransformationPipeline(REROUTE_INPUT_FILE, OUTPUT_FOLDER)
 
         // Now compile the resulting code to check for syntax errors
-        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testrerouting_puml.java" }.first()
+        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Test_rerouting_puml.java" }.first()
         val compiledTest = Reflect.compile(
             generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
@@ -142,7 +142,7 @@ class End2EndTest : StringSpec({
         runTransformationPipeline(REROUTE_INPUT_FILE, OUTPUT_FOLDER)
 
         // Now compile the resulting code to check for syntax errors
-        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testrerouting_puml.java" }.first()
+        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Test_rerouting_puml.java" }.first()
         val compiledTest = Reflect.compile(
             generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
@@ -180,7 +180,7 @@ class End2EndTest : StringSpec({
         runTransformationPipeline(REROUTE_INPUT_FILE, OUTPUT_FOLDER)
 
         // Now compile the resulting code to check for syntax errors
-        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testrerouting_puml.java" }.first()
+        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Test_rerouting_puml.java" }.first()
         val compiledTest = Reflect.compile(
             generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
@@ -222,7 +222,7 @@ class End2EndTest : StringSpec({
         runTransformationPipeline(REROUTE_INPUT_FILE, OUTPUT_FOLDER)
 
         // Now compile the resulting code to check for syntax errors
-        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testrerouting_puml.java" }.first()
+        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Test_rerouting_puml.java" }.first()
         val compiledTest = Reflect.compile(
             generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
@@ -245,7 +245,7 @@ class End2EndTest : StringSpec({
         runTransformationPipeline(XCALL_INPUT_FILE, OUTPUT_FOLDER)
 
         // Now compile the resulting code to check for syntax errors
-        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testxcall_puml.java" }.first()
+        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Test_xcall_puml.java" }.first()
         val compiledTest = Reflect.compile(
             generatedSourceFile.nameWithoutExtension,
             generatedSourceFile.readText()
