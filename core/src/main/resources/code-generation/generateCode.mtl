@@ -3,11 +3,13 @@
 
 [template public generateTestScenario(testScenario : TestScenario) post(trim())]
 [comment @main /]
-[file ('Test'.concat(testScenario.testScenarioName.concat('.java')), false, 'UTF-8')]
+[file ('Test_'.concat(testScenario.testScenarioName.concat('.java')), false, 'UTF-8')]
 import com.moandjiezana.toml.Toml;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.filter.Filter;
+import io.restassured.filter.log.ErrorLoggingFilter;
+import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
 import org.apache.commons.text.StringSubstitutor;
 import org.hamcrest.collection.IsIn;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,12 +90,12 @@ public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
 
 	/// Helper method to determine the necessary filter for response validation.
 	/// If a Swagger file is specified, the filter returned checks the response format.
-	/// If not, null is returned, representing an empty filter.
+	/// If not, an ErrorLoggingFilter is returned which does nothing but printing errors. Granted, kinda hacky.
 	private Filter responseFilter(String swaggerKey) {
         if (paramsMap.containsKey(swaggerKey))
             return new OpenApiValidationFilter(subst("${" + swaggerKey + "}"));
         else
-            return null;
+            return new ErrorLoggingFilter();
 	}
 
     /// Helper method to flatten the tree-like structure of a TOML file.
