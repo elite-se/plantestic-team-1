@@ -9,14 +9,13 @@
 [reqDatum.variableName/] = ""
         [/if]
     [/for]
-
-    [for (reqSpecification : RequestSpecification | RequestSpecification.allInstances())]
-        [if (reqSpecification.receiver.oclIsInvalid() = false)]
-['['/][reqSpecification.receiver/][']'/]
+    [let receivers : Set(String) = RequestSpecification.allInstances()->select(i : RequestSpecification | i.receiver.oclIsInvalid() = false)->collect(req : RequestSpecification | req.receiver.oclAsType(String))->asSet()]
+        [for (receiver : String | receivers )]
+['['/][receiver/][']'/]
     username = ""
     password = ""
     path = ""
-        [/if]
-    [/for]
+        [/for]
+    [/let]
 [/file]
 [/template]
