@@ -10,6 +10,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import kotlin.system.exitProcess
 
 object Main {
 
@@ -85,7 +86,7 @@ object Main {
         private val input: String by option(help = "Path to the PlantUML file containing the API specification.")
             .required()
         private val output: String by option(help = "Output folder where the test cases should be written to. Default is './plantestic-test'")
-            .default("./plantestic-test")
+            .default("./test-suite/tests")
         private val execute: Boolean? by option(help = "Run the pipeline and execute the test").flag(default = false)
         private val config: String? by option(help = ".toml file which is to be used by the pipeline")
 
@@ -147,14 +148,19 @@ object Main {
         val path_fix: String = if (IS_WINDOWS) configFile.path[0].toString() else ""
 
         val compiledTest = Reflect.compile(
-            "com.plantestic.test.${targetFile.nameWithoutExtension}",
+            targetFile.nameWithoutExtension,
             targetFile.readText()
-        ).create(path_fix + configFile.path)
+        ).create()
+        compiledTest.call("setConfigFilePath", configFile.path)
+        compiledTest.call("setupConfig")
         try {
             compiledTest.call("test")
         }
-        catch (e: java.lang.reflect.InvocationTargetException) {
-            print(e.cause)  // Find a way to ignore invocation target exception and report only the cause leading to it
+        catch (e: org.joor.ReflectException) {
+            // Connection exception
+            println("The tested system refused to connect!")
+            println(e.cause!!.cause)
+            exitProcess(1)
         }
         print("The test was successful")
     }
