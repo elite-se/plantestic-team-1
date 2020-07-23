@@ -1,0 +1,21 @@
+[comment encoding = UTF-8 /]
+[module generateTomlConfig('http://www.example.org/RestAssured')]
+
+[template public generateTomlTemplate(testScenario : TestScenario) post(trim())]
+[comment @main /]
+[file (testScenario.testScenarioName.concat('.toml'), false, 'UTF-8')]
+    [for (reqDatum : RequestDatum | RequestDatum.allInstances())]
+        [if (reqDatum.variableName.oclIsInvalid() = false)]
+[reqDatum.variableName/] = ""
+        [/if]
+    [/for]
+    [let receivers : Set(String) = RequestSpecification.allInstances()->select(i : RequestSpecification | i.receiver.oclIsInvalid() = false)->collect(req : RequestSpecification | req.receiver.oclAsType(String))->asSet()]
+        [for (receiver : String | receivers )]
+['['/][receiver/][']'/]
+    username = ""
+    password = ""
+    path = ""
+        [/for]
+    [/let]
+[/file]
+[/template]
