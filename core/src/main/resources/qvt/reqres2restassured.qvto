@@ -16,22 +16,24 @@ mapping Scenario::scenario2testScenario(): TestScenario {
     log('Transforming Scenario to TestScenario');
 
     testScenarioName := self.scenarioName;
-    testroundtrip := self.roundtrip -> map roundtrip2testRoundtrip();
+    testroundtrips := self.roundtrips -> map roundtrips2testRoundtrips();
 }
 
- mapping Roundtrip::roundtrip2testRoundtrip(): TestRoundtrip {
+ mapping Roundtrip::roundtrips2testRoundtrips(): TestRoundtrip {
      log('Transforming Roundtrip to TestRoundtrip');
 
      testRoundtripName := self.roundtripName;
-     sleepBefore := self.sleepBefore;
-     
-     log(self.sleepBefore.toString());
+     timing := self.timing.map roundtripTiming2TestRoundtripTiming();
 
      if(self.precondition != null) then {
              precondition := self.precondition;
      } endif;
      requestspecification :=  self.httprequest .map httprequest2requestSpecification();
      responsespecification := self.httpresponse .map httpresponse2responseSpecification();
+}
+
+mapping RoundtripTiming::roundtripTiming2TestRoundtripTiming(): TestRoundtripTiming {
+	sleepAfter := self.sleepAfter;
 }
 
 mapping HttpRequest::httprequest2requestSpecification(): RequestSpecification {

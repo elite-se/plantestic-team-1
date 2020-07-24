@@ -3,7 +3,7 @@ SEQUENCE @startuml
 PARTICIPANT A
 PARTICIPANT B
 
-GROUP sleepBefore(2000)
+GROUP sleepAfter(2000)
 	A -> B : GET "/hello"
 	activate B
 	B -> A : 200
