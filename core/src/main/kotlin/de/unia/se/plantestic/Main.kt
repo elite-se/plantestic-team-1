@@ -89,6 +89,7 @@ object Main {
             .default("./test-suite/tests")
         private val execute: Boolean? by option(help = "Run the pipeline and execute the test").flag(default = false)
         private val config: String? by option(help = ".toml file which is to be used by the pipeline")
+        private val mock: String? by option(help = ".toml file which is to be used by the pipeline")
 
         override fun run() {
             val inputFile = File(input).normalize()
@@ -104,7 +105,7 @@ object Main {
             runTransformationPipeline(inputFile, tempOutputFolder)
 
             val generatedSourceFile = tempOutputFolder.listFiles()?.first()
-            if (generatedSourceFile == null) throw Exception("Something went wrong with generating the file")
+                ?: throw Exception("Something went wrong with generating the file")
             //echo("Generated source file is $generatedSourceFile")
             val targetString = outputFolder.absolutePath + "/" + generatedSourceFile.name
             //echo("Target file is $targetString")
@@ -112,7 +113,11 @@ object Main {
             val targetFile = File(targetString)
             echo("Generated test ${targetFile.path}")
 
-            if (execute == null || execute == false) return
+            if ((execute == null || execute == false) && mock == null) return
+            if (execute == true && mock != null) {
+                echo("Cannot mock and execute tests at the same time! Please use multiple instances.")
+                return
+            }
             if (config == null) {
                 echo("Config file must be defined if the execute flag is used.")
                 return
@@ -122,7 +127,11 @@ object Main {
                 echo("Config file ${configFile.absolutePath} does not exist.")
                 return
             }
-            executeTestCase(targetFile, configFile)
+            if (execute == true) executeTestCase(targetFile, configFile)
+            if (mock != null) {
+                println("Files were prepared and the mocks are being served at http://localhost:8080")
+                serveMocks(targetFile, configFile, mock.toString())
+            }
             print("The test was successful")
         }
     }
@@ -145,7 +154,6 @@ object Main {
         // move file to resources/user-pipeline/inputFile.name
         // move the config file to the correct location
         // execute that code with its toml
-        val path_fix: String = if (IS_WINDOWS) configFile.path[0].toString() else ""
 
         val compiledTest = Reflect.compile(
             targetFile.nameWithoutExtension,
@@ -158,11 +166,32 @@ object Main {
         }
         catch (e: org.joor.ReflectException) {
             // Connection exception
-            println("The tested system refused to connect!")
             println(e.cause!!.cause)
             exitProcess(1)
         }
-        print("The test was successful")
+        println("The test was successful")
+    }
+
+    fun serveMocks(targetFile: File, configFile: File, mockList: String) {
+        var requests = compileTests(targetFile, configFile, "requests")
+        println(requests)
+        var expectations = compileTests(targetFile, configFile, "expectations")
+        println(expectations)
+        var mocks = mockList.split(",")
+        val wireMockServer = AutoMocker(requests, expectations, 8080)
+        for (mock in mocks) wireMockServer.addMock(mock)
+        wireMockServer.start()
+        while (true) {}
+    }
+
+    fun compileTests(targetFile: File, configFile: File, command: String) : Map<String, Map<String, Any>> {
+        val compiledTest = Reflect.compile(
+            targetFile.nameWithoutExtension,
+            targetFile.readText()
+        ).create()
+        compiledTest.call("setConfigFilePath", configFile.path)
+        compiledTest.call("setupConfig")
+        return compiledTest.call(command).get()
     }
 
     @JvmStatic
