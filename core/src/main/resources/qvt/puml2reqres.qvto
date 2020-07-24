@@ -18,17 +18,12 @@ mapping SequenceUml::transformUmlDiagram(): Scenario {
     scenarioName := diagramName + "_puml";
     var roundtripId : Integer := 1;
 
-	log('-------------');
-	self.umlElements->print(0);
-	log('-------------');
-
     var umlElements : OrderedSet(SequenceElement) := self.umlElements->flattenSequenceElements();
     var umlElementsSize : Integer := umlElements->size();
     var umlElementsIndex : Integer := 1;
-
-	log('-------------');
-	umlElements->print(0);
-	log('-------------');
+    
+    var umlElementsIndexBuffer : Integer := null;
+    var umlElementsBuffer : OrderedSet(SequenceElement) := null;
 
     while (umlElementsIndex <= umlElementsSize) {
         var sequenceElement : SequenceElement := umlElements->at(umlElementsIndex);
@@ -38,7 +33,12 @@ mapping SequenceUml::transformUmlDiagram(): Scenario {
         	var sleep : SleepBefore := sequenceElement.oclAsType(SleepBefore);
         	sleepBefore := sleep.sleepBefore;
         	
-        	umlElementsIndex := umlElementsIndex + 1;
+        	umlElementsIndexBuffer := umlElementsIndex;
+        	umlElementsIndex := 1;
+        	
+        	umlElementsBuffer := umlElements;
+        	umlElements := sleep.umlElements;
+        	
         	sequenceElement := umlElements->at(umlElementsIndex);
         };
         
@@ -103,6 +103,15 @@ mapping SequenceUml::transformUmlDiagram(): Scenario {
             roundtrip += roundtripElement;
             roundtripId := roundtripId + 1;
         };
+        
+        if (umlElementsBuffer != null) {
+        	umlElements := umlElementsBuffer;
+        	umlElementsIndex := umlElementsIndexBuffer;
+        
+        	umlElementsBuffer := null;
+        	umlElementsIndexBuffer := null;
+        };
+        
         umlElementsIndex := umlElementsIndex + 1;
     };
 }
