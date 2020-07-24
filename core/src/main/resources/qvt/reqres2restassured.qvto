@@ -24,6 +24,8 @@ mapping Scenario::scenario2testScenario(): TestScenario {
 
      testRoundtripName := self.roundtripName;
      sleepBefore := self.sleepBefore;
+     
+     log(self.sleepBefore.toString());
 
      if(self.precondition != null) then {
              precondition := self.precondition;

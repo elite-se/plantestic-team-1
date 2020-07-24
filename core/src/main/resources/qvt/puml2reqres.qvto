@@ -18,9 +18,17 @@ mapping SequenceUml::transformUmlDiagram(): Scenario {
     scenarioName := diagramName + "_puml";
     var roundtripId : Integer := 1;
 
+	log('-------------');
+	self.umlElements->print(0);
+	log('-------------');
+
     var umlElements : OrderedSet(SequenceElement) := self.umlElements->flattenSequenceElements();
     var umlElementsSize : Integer := umlElements->size();
     var umlElementsIndex : Integer := 1;
+
+	log('-------------');
+	umlElements->print(0);
+	log('-------------');
 
     while (umlElementsIndex <= umlElementsSize) {
         var sequenceElement : SequenceElement := umlElements->at(umlElementsIndex);
@@ -99,6 +107,26 @@ mapping SequenceUml::transformUmlDiagram(): Scenario {
     };
 }
 
+helper OrderedSet(SequenceElement)::print(depth : Integer) {
+	var sequenceElements : OrderedSet(SequenceElement);
+	self->forEach(umlElement) {
+		
+		var tabs : String = '';
+		var count = 0;
+		while (count < depth) {
+			tabs := tabs + '  ';
+			count := count + 1;
+		};
+		
+		log(tabs + umlElement.toString());
+		
+        if (umlElement.oclIsKindOf(UmlElementsContainer)) {
+            umlElement.oclAsType(UmlElementsContainer).umlElements->print(depth + 1);
+        }
+	}
+}
+
+
 helper OrderedSet(SequenceElement)::flattenSequenceElements():OrderedSet(SequenceElement) {
     var sequenceElements : OrderedSet(SequenceElement);
     self->forEach(umlElement) {
@@ -113,12 +141,21 @@ helper OrderedSet(SequenceElement)::flattenSequenceElements():OrderedSet(Sequenc
         elif (umlElement.oclIsTypeOf(Activate)) {
             var activate : Activate := umlElement.oclAsType(Activate);
             sequenceElements += activate.umlElements->flattenSequenceElements();
+        }
+        elif (umlElement.oclIsTypeOf(SleepBefore)) {
+        	var sleepBefore : SleepBefore := umlElement.oclAsType(SleepBefore);
+        	sequenceElements += sleepBefore.map flattenSleepBefore();
         };
     };
     return sequenceElements;
 }
 
-mapping Alternative::flattenAlternative():Alternative {
+mapping SleepBefore::flattenSleepBefore(): SleepBefore {
+	umlElements += self.umlElements->flattenSequenceElements();
+    sleepBefore := self.sleepBefore;
+}
+
+mapping Alternative::flattenAlternative(): Alternative {
     umlElements += self.umlElements->flattenSequenceElements();
     elseBlocks += self.elseBlocks->at(1).oclAsType(Else).map flattenElse();
     text := self.text;
