@@ -173,18 +173,16 @@ object Main {
     }
 
     fun serveMocks(targetFile: File, configFile: File, mockList: String) {
-        var requests = compileTests(targetFile, configFile, "requests")
-        println(requests)
-        var expectations = compileTests(targetFile, configFile, "expectations")
-        println(expectations)
-        var mocks = mockList.split(",")
-        val wireMockServer = AutoMocker(requests, expectations, 8080)
+        val specs = compileTests(targetFile, configFile, "testingSpecification")
+        println("The specification is as following: $specs")
+        val mocks = mockList.split(",")
+        val wireMockServer = AutoMocker(specs, 8080)
         for (mock in mocks) wireMockServer.addMock(mock)
         wireMockServer.start()
         while (true) {}
     }
 
-    fun compileTests(targetFile: File, configFile: File, command: String) : Map<String, Map<String, Any>> {
+    fun compileTests(targetFile: File, configFile: File, command: String) : Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>> {
         val compiledTest = Reflect.compile(
             targetFile.nameWithoutExtension,
             targetFile.readText()

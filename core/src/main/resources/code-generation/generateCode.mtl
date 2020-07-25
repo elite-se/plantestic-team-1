@@ -69,7 +69,7 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
 	[/for]
 	}
 
-    public Map<String, Object> requests() {
+    public Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>> testingSpecification() {
         try {
             setupConfig();
         }
@@ -77,35 +77,49 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
             System.out.println("Config was not setup successfully");
         }
 
-        Map<String, Object> requests = new HashMap();
-        Map<String, String> variables = new HashMap();  // variables are filled using the response specification
-    [for (testRoundtrip : TestRoundtrip | testScenario.testroundtrip) separator('\n\n') ]
-        [let rtname : TestRoundtrip = testRoundtrip.testRoundtripName]
-        [let rec : RequestSpecification = testRoundtrip.requestspecification.receiver]
-        if (!requests.containsKey("[rec/]")) {
-            Map<String, String> [rec/]_[rtname/] = new HashMap();
-            [rec/]_[rtname/].put("method", subst("[testRoundtrip.requestspecification.method/]"));
-            [rec/]_[rtname/].put("url", subst("[testRoundtrip.requestspecification.url/]"));
-            [for (requestDatum : RequestDatum | testRoundtrip.requestspecification.requestdatum) separator('\n\n') ]
-            [rec/]_[rtname/].put("[requestDatum.variableName/]", subst("[requestDatum.value/]"));
-            [/for]
-            requests.put("[rec/]", [rec/]_[rtname/]);
-        }
-        [/let]
-        [/let]
-        [for (responseDatum : ResponseDatum | testRoundtrip.responsespecification.responsedatum) separator('\n\n') ]
-        variables.put("[responseDatum.variableName/]", "[responseDatum.xPath/]");
-        [/for]
-    [/for]
-        return requests;
-    }
+        Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>> specs;
+        Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>> actor;
+        Map<String, Map<String, Map<String, Map<String, String>>>> url;
+        Map<String, Map<String, Map<String, String>>> method;
+        Map<String, Map<String, String>> roundtrip;
+        Map<String, String> requests;
+        Map<String, String> responses;
+        String actorName, urlName, methodName, roundtripName;
 
-    public String reformat(String s) {
-        if (s.contains("$")) {
-            System.out.println("Reformat was called for " + s);
-            return paramsMap.get(s).toString();
+        specs = new HashMap();
+        [for (testRoundtrip : TestRoundtrip | testScenario.testroundtrip) separator('\n\n') ]
+        [let rec : RequestSpecification = testRoundtrip.requestspecification.receiver]
+        actorName = "[rec/]";
+        if (!specs.containsKey(actorName)) {
+            specs.put(actorName, new HashMap<String, Map<String, Map<String, Map<String, Map<String, String>>>>>());
         }
-        return s;
+        actor = specs.get("[rec/]");
+        urlName = subst("[testRoundtrip.requestspecification.url/]");
+        if (!actor.containsKey(urlName)) {
+            actor.put(urlName, new HashMap<String, Map<String, Map<String, Map<String, String>>>>());
+        }
+        url = actor.get(urlName);
+        methodName = subst("[testRoundtrip.requestspecification.method/]");
+        if (!url.containsKey(methodName)) {
+            url.put(methodName, new HashMap<String, Map<String, Map<String, String>>>());
+        }
+        method = url.get(methodName);
+        roundtripName = "[testRoundtrip.testRoundtripName/]"; // this is always unique
+        method.put(roundtripName, new HashMap<String, Map<String, String>>());
+        roundtrip = method.get(roundtripName);
+        roundtrip.put("requests", new HashMap<String, String>());
+        roundtrip.put("responses", new HashMap<String, String>());
+        requests = roundtrip.get("requests");
+        [for (requestDatum : RequestDatum | testRoundtrip.requestspecification.requestdatum) separator('\n\n') ]
+        requests.put("[requestDatum.variableName/]", subst("[requestDatum.value/]"));
+        [/for]
+        responses = roundtrip.get("responses");
+        [for (responseDatum : ResponseDatum | testRoundtrip.responsespecification.responsedatum) separator('\n\n') ]
+        responses.put("[responseDatum.variableName/]", "[responseDatum.xPath/]");
+        [/for]
+        [/let]
+        [/for]
+        return specs;
     }
 
 	public Map<String, Object> expectations() {
