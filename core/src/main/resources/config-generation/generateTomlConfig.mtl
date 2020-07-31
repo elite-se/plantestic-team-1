@@ -17,5 +17,19 @@
     path = ""
         [/for]
     [/let]
+    [let testroundtrips : Set(TestRoundtrip) = TestRoundtrip.allInstances()->select(i : TestRoundtrip | i.testRoundtripName.oclIsInvalid() = false)->asSet()]
+    [if (testroundtrips->notEmpty())]
+
+['['/]RoundtripChecks[']'/]
+        [for (testroundtrip : TestRoundtrip | testroundtrips)]
+    ['['/]RoundtripChecks.[testroundtrip.testRoundtripName/][']'/]
+            [for (responseDatum : ResponseDatum | testroundtrip.responsespecification.responsedatum)]
+        [responseDatum.variableName/] = ""
+            [/for]
+
+        [/for]
+    [/if]
+
+    [/let]
 [/file]
 [/template]
