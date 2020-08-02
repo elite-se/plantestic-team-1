@@ -14,10 +14,11 @@ import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException
 // actor (receiver), url, method, roundtrip, requests/responses, variableName to get value/xPath (check out RestAssured.png)
 class AutoMocker(private val specs: Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>>, port: Int) {
     private val wireMockServer = WireMockServer(WireMockConfiguration.options().port(port).notifier(ConsoleNotifier(true)))
+    private val responseList = HashMap<String, String>()  // responseList is used to update variables with actual values
 
     fun addMock(mockName: String) {
         // the actor is mocked => actorName = mockName
-        val actor = (specs[mockName]) ?: error("The mock $mockName does not exist")
+        val actor = (specs[mockName]) ?: error("The mock $mockName does not exist or is never called")
         for ((urlName, url) in actor)
             for ((methodName, method) in url)
                 for (roundtip in method.values) {
@@ -25,6 +26,7 @@ class AutoMocker(private val specs: Map<String, Map<String, Map<String, Map<Stri
                     val status = roundtip["status"] ?: error("The requests were never initialized for $methodName")
                     val requests = roundtip["requests"] ?: error("The requests were never initialized for $methodName")
                     val responses = roundtip["responses"] ?: error("The requests were never initialized for $methodName")
+                    responseList.putAll(responses)
                     if (requests.isEmpty()) wireMockServer.stubFor(pathWithMethod.willReturn(prepareResponse(status, responses)))
                     else wireMockServer.stubFor(
                         // containingCorrectRequests(pathWithMethod.willReturn(prepareResponse(status, responses)), requests))
@@ -55,7 +57,9 @@ class AutoMocker(private val specs: Map<String, Map<String, Map<String, Map<Stri
     private fun prepareQueryMatcher(requests: Map<String, String>) : Map<String, StringValuePattern> {
         val queryMatcher = HashMap<String, StringValuePattern>()
         for ((key, value) in requests) {
-            queryMatcher[key] = WireMock.equalTo(value)
+            val modifiedValue = if (!value.contains('$')) value else responseList[value.substring(2, value.length - 1)]
+                ?: error("The variable $value was found but no value could be assigned.")
+            queryMatcher[key] = WireMock.equalTo(modifiedValue)
         }
         return queryMatcher
     }
