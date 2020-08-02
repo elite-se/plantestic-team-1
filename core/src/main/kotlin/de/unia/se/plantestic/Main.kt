@@ -2,6 +2,7 @@ package de.unia.se.plantestic
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import java.io.File
@@ -79,21 +80,29 @@ object Main {
             .required()
         private val output: String by option(help = "Output folder where the test cases should be written to. Default is '.../test-suite/tests'")
             .default("../test-suite/tests")
+        private val tomlTemplateOutput: String by option("--tomlTemplateOutput", help = "Output folder where the toml templates should be written to. Default is '.../test-suite/config'")
+            .default("../test-suite/config")
+        private val dontGenerateTomlTemplate: Boolean by option("--dontGenerateTomlTemplate", help = "Prevent generation of toml templates for the generated tests").flag()
 
         override fun run() {
             val inputFile = File(input).normalize()
             val outputFolder = File(output).normalize()
+            val tomlOutputFolder = File(tomlTemplateOutput).normalize()
 
             if (!inputFile.exists()) {
                 echo("Input file ${inputFile.absolutePath} does not exist.")
                 return
             }
 
-            runTransformationPipeline(inputFile, outputFolder)
+            if (dontGenerateTomlTemplate) {
+                runTransformationPipeline(inputFile, outputFolder)
+            } else {
+                runTransformationPipeline(inputFile, outputFolder, tomlOutputFolder)
+            }
         }
     }
 
-    fun runTransformationPipeline(inputFile: File, outputFolder: File) {
+    fun runTransformationPipeline(inputFile: File, outputFolder: File, tomlTemplateOutput: File? = null) {
         MetaModelSetup.doSetup()
 
         val pumlDiagramModel = PumlParser.parse(inputFile.absolutePath)
@@ -103,6 +112,10 @@ object Main {
 
         println("Generating code into $outputFolder")
         AcceleoCodeGenerator.generateCode(restAssuredModel, outputFolder)
+        if (tomlTemplateOutput != null) {
+            println("Generating toml template into $tomlTemplateOutput")
+            AcceleoTomlGenerator.generateToml(restAssuredModel, tomlTemplateOutput)
+        }
     }
 
     @JvmStatic
