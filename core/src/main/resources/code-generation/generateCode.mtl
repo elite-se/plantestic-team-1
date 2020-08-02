@@ -69,7 +69,7 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
 	[/for]
 	}
 
-    public Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>> testingSpecification() {
+    public Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>> testingSpecification() throws ScriptException {
         try {
             setupConfig();
         }
@@ -87,8 +87,10 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
         Map<String, String> responses;
         String actorName, urlName, methodName, roundtripName;
 
-
         [for (testRoundtrip : TestRoundtrip | testScenario.testroundtrip) separator('\n\n') ]
+        [if (testRoundtrip.precondition->notEmpty())]
+        if(eval("[testRoundtrip.precondition/]")) {
+        [/if]
         [let rec : RequestSpecification = testRoundtrip.requestspecification.receiver]
         actorName = "[rec/]";
         if (!specs.containsKey(actorName)) {
@@ -130,6 +132,9 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
         responses.put("[responseDatum.variableName/]", "[responseDatum.xPath/]");
         [/for]
         [/let]
+        [if (testRoundtrip.precondition->notEmpty())]
+        }
+        [/if]
         [/for]
 
 
@@ -190,7 +195,7 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
 [template private generadeAddRequestParams(requestSpecification : RequestSpecification)]
 	[if (requestSpecification.requestdatum->notEmpty())]
 		[for (requestDatum : RequestDatum | requestSpecification.requestdatum)]
-paramsMap.put("[requestDatum.variableName/]", "[requestDatum.value/]");
+paramsMap.putIfAbsent("[requestDatum.variableName/]", "[requestDatum.value/]");  // put only if the key doesn't exist to avoid infinite loops
 		[/for]
 	[/if]
 [/template]
