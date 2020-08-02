@@ -101,6 +101,8 @@ dependencies {
 
     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.1.7"
     testImplementation "io.mockk:mockk:1.8.9"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:5.3.1"
+    testImplementation "com.atlassian.oai:swagger-request-validator-restassured:2.10.0"
 
     // End-2-End Test
     implementation "org.jooq:joor-java-8:0.9.12"

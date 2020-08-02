@@ -14,8 +14,6 @@ import kotlin.system.exitProcess
 
 object Main {
 
-    private val IS_WINDOWS = System.getProperty("os.name").contains("indow")
-
     class Cli : CliktCommand(
         printHelpOnEmptyArgs = true,
         help = "Plantestic is a tool that transforms UML sequence diagrams of REST APIs into Java unit tests.",
@@ -101,6 +99,9 @@ object Main {
         private val execute: Boolean? by option(help = "Run the pipeline and execute the test").flag(default = false)
         private val config: String? by option(help = ".toml file which is to be used by the pipeline")
         private val mock: String? by option(help = ".toml file which is to be used by the pipeline")
+        private val tomlTemplateOutput: String by option("--tomlTemplateOutput", help = "Output folder where the toml templates should be written to. Default is '.../test-suite/config'")
+            .default("../test-suite/config")
+        private val dontGenerateTomlTemplate: Boolean by option("--dontGenerateTomlTemplate", help = "Prevent generation of toml templates for the generated tests").flag()
 
         override fun run() {
             val inputFile = File(input).normalize()
@@ -108,9 +109,14 @@ object Main {
             val tempOutputFolder = File("$output/temp").normalize()
 
             if (!inputFile.exists()) return echo("Input file ${inputFile.absolutePath} does not exist.")
+            val tomlOutputFolder = File(tomlTemplateOutput).normalize()
 
             echo("###Welcome to the plantestic pipeline###")
-            runTransformationPipeline(inputFile, tempOutputFolder)
+            if (dontGenerateTomlTemplate) {
+                runTransformationPipeline(inputFile, outputFolder)
+            } else {
+                runTransformationPipeline(inputFile, outputFolder, tomlOutputFolder)
+            }
 
             val generatedSourceFile = tempOutputFolder.listFiles()?.first()
                 ?: throw Exception("Something went wrong with generating the file.")
@@ -135,7 +141,7 @@ object Main {
         }
     }
 
-    fun runTransformationPipeline(inputFile: File, outputFolder: File) {
+    fun runTransformationPipeline(inputFile: File, outputFolder: File, tomlTemplateOutput: File? = null) {
         MetaModelSetup.doSetup()
 
         val pumlDiagramModel = PumlParser.parse(inputFile.absolutePath)
@@ -145,6 +151,10 @@ object Main {
 
         println("Generating code into $outputFolder")
         AcceleoCodeGenerator.generateCode(restAssuredModel, outputFolder)
+        if (tomlTemplateOutput != null) {
+            println("Generating toml template into $tomlTemplateOutput")
+            AcceleoTomlGenerator.generateToml(restAssuredModel, tomlTemplateOutput)
+        }
     }
 
     fun executeTestCase(targetFile: File, configFile: File) {
