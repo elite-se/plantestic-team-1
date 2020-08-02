@@ -76,6 +76,17 @@ object Main {
         |username = "admin"
         |password = "admin"
         |
+        |EXECUTING TESTS
+        |===============
+        |
+        |Tests can be executed by calling the --execute flag with the required input.puml and conf.toml files
+        |
+        |MOCKING COMPONENTS
+        |==================
+        |
+        |All services which are called at least once can be mocked using --mock="ServiceA,ServiceB". Mocking does not
+        |work at the same time with executing.
+        |
         |LEGAL
         |=====
         |
@@ -96,43 +107,31 @@ object Main {
             val outputFolder = File(output).normalize()
             val tempOutputFolder = File("$output/temp").normalize()
 
-            if (!inputFile.exists()) {
-                echo("Input file ${inputFile.absolutePath} does not exist.")
-                return
-            }
+            if (!inputFile.exists()) return echo("Input file ${inputFile.absolutePath} does not exist.")
 
             echo("###Welcome to the plantestic pipeline###")
             runTransformationPipeline(inputFile, tempOutputFolder)
 
             val generatedSourceFile = tempOutputFolder.listFiles()?.first()
-                ?: throw Exception("Something went wrong with generating the file")
-            //echo("Generated source file is $generatedSourceFile")
+                ?: throw Exception("Something went wrong with generating the file.")
             val targetString = outputFolder.absolutePath + "/" + generatedSourceFile.name
-            //echo("Target file is $targetString")
             Files.move(generatedSourceFile.toPath(), Paths.get(targetString), StandardCopyOption.REPLACE_EXISTING)
             val targetFile = File(targetString)
-            echo("Generated test ${targetFile.path}")
+            echo("Generated test ${targetFile.path}.")
 
-            if ((execute == null || execute == false) && mock == null) return
-            if (execute == true && mock != null) {
-                echo("Cannot mock and execute tests at the same time! Please use multiple instances.")
-                return
-            }
-            if (config == null) {
-                echo("Config file must be defined if the execute flag is used.")
-                return
-            }
+
+            if ((execute == null || execute == false) && mock == null) return echo("The pipeline was successful.")
+            if (execute == true && mock != null)
+                return echo("Cannot mock and execute tests at the same time! Please use multiple instances.")
+            if (config == null) return echo("Config file must be defined if the execute flag is used.")
             val configFile = File(config).normalize()
-            if (!configFile.exists()) {
-                echo("Config file ${configFile.absolutePath} does not exist.")
-                return
-            }
+            if (!configFile.exists()) return echo("Config file ${configFile.absolutePath} does not exist.")
             if (execute == true) executeTestCase(targetFile, configFile)
             if (mock != null) {
-                println("Files were prepared and the mocks are being served at http://localhost:8080")
+                echo("Files were prepared and the mocks are being served at http://localhost:8080")
                 serveMocks(targetFile, configFile, mock.toString())
             }
-            print("The test was successful")
+            return echo("The pipeline was successful.")
         }
     }
 
@@ -149,20 +148,8 @@ object Main {
     }
 
     fun executeTestCase(targetFile: File, configFile: File) {
-        //Files.move(inputFile.toPath(), path)
-
-        // move file to resources/user-pipeline/inputFile.name
-        // move the config file to the correct location
-        // execute that code with its toml
-
-        val compiledTest = Reflect.compile(
-            targetFile.nameWithoutExtension,
-            targetFile.readText()
-        ).create()
-        compiledTest.call("setConfigFilePath", configFile.path)
-        compiledTest.call("setupConfig")
         try {
-            compiledTest.call("test")
+            compileTests(targetFile, configFile, "test")
         }
         catch (e: org.joor.ReflectException) {
             // Connection exception
@@ -182,7 +169,8 @@ object Main {
         while (true) {}
     }
 
-    fun compileTests(targetFile: File, configFile: File, command: String) : Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>> {
+    private fun compileTests(targetFile: File, configFile: File, command: String) :
+            Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>> {
         val compiledTest = Reflect.compile(
             targetFile.nameWithoutExtension,
             targetFile.readText()
