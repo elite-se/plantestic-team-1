@@ -90,7 +90,7 @@ public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
         Map<String, String> responses;
         String actorName, urlName, methodName, roundtripName;
 
-        [for (testRoundtrip : TestRoundtrip | testScenario.testroundtrip) separator('\n\n') ]
+        [for (testRoundtrip : TestRoundtrip | testScenario.testroundtrips) separator('\n\n') ]
         [if (testRoundtrip.precondition->notEmpty())]
         if(eval("[testRoundtrip.precondition/]")) {
         [/if]

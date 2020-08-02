@@ -94,12 +94,12 @@ object Main {
 
         private val input: String by option(help = "Path to the PlantUML file containing the API specification.")
             .required()
-        private val output: String by option(help = "Output folder where the test cases should be written to. Default is './plantestic-test'")
-            .default("./test-suite/tests")
+        private val output: String by option(help = "Output folder where the test cases should be written to. Default is '../test-suite/tests'")
+            .default("../test-suite/tests")
         private val execute: Boolean? by option(help = "Run the pipeline and execute the test").flag(default = false)
         private val config: String? by option(help = ".toml file which is to be used by the pipeline")
         private val mock: String? by option(help = ".toml file which is to be used by the pipeline")
-        private val tomlTemplateOutput: String by option("--tomlTemplateOutput", help = "Output folder where the toml templates should be written to. Default is '.../test-suite/config'")
+        private val tomlTemplateOutput: String by option("--tomlTemplateOutput", help = "Output folder where the toml templates should be written to. Default is '../test-suite/config'")
             .default("../test-suite/config")
         private val dontGenerateTomlTemplate: Boolean by option("--dontGenerateTomlTemplate", help = "Prevent generation of toml templates for the generated tests").flag()
 
@@ -113,9 +113,9 @@ object Main {
 
             echo("###Welcome to the plantestic pipeline###")
             if (dontGenerateTomlTemplate) {
-                runTransformationPipeline(inputFile, outputFolder)
+                runTransformationPipeline(inputFile, tempOutputFolder)
             } else {
-                runTransformationPipeline(inputFile, outputFolder, tomlOutputFolder)
+                runTransformationPipeline(inputFile, tempOutputFolder, tomlOutputFolder)
             }
 
             val generatedSourceFile = tempOutputFolder.listFiles()?.first()
@@ -159,7 +159,7 @@ object Main {
 
     fun executeTestCase(targetFile: File, configFile: File) {
         try {
-            compileTests(targetFile, configFile, "test")
+            compileTests(targetFile, configFile)!!.call("test")
         }
         catch (e: org.joor.ReflectException) {
             // Connection exception
@@ -170,7 +170,8 @@ object Main {
     }
 
     fun serveMocks(targetFile: File, configFile: File, mockList: String) {
-        val specs = compileTests(targetFile, configFile, "testingSpecification")
+        val specs = compileTests(targetFile, configFile)!!.call("testingSpecification")!!
+            .get() as Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>>
         println("The specification is as following: $specs")
         val mocks = mockList.split(",")
         val wireMockServer = AutoMocker(specs, 8080)
@@ -179,15 +180,14 @@ object Main {
         while (true) {}
     }
 
-    private fun compileTests(targetFile: File, configFile: File, command: String) :
-            Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>> {
+    private fun compileTests(targetFile: File, configFile: File) : Reflect? {
         val compiledTest = Reflect.compile(
             targetFile.nameWithoutExtension,
             targetFile.readText()
         ).create()
         compiledTest.call("setConfigFilePath", configFile.path)
         compiledTest.call("setupConfig")
-        return compiledTest.call(command).get()
+        return compiledTest
     }
 
     @JvmStatic
