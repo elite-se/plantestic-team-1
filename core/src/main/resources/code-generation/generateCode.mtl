@@ -72,6 +72,78 @@ public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
 	[/for]
 	}
 
+    public Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>> testingSpecification() throws ScriptException {
+        try {
+            setupConfig();
+        }
+        catch(Exception e) {
+            System.out.println("Config was not setup successfully");
+        }
+
+        Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>> specs = new HashMap();
+        Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>> actor;
+        Map<String, Map<String, Map<String, Map<String, String>>>> url;
+        Map<String, Map<String, Map<String, String>>> method;
+        Map<String, Map<String, String>> roundtrip;
+        Map<String, String> status;
+        Map<String, String> requests;
+        Map<String, String> responses;
+        String actorName, urlName, methodName, roundtripName;
+
+        [for (testRoundtrip : TestRoundtrip | testScenario.testroundtrips) separator('\n\n') ]
+        [if (testRoundtrip.precondition->notEmpty())]
+        if(eval("[testRoundtrip.precondition/]")) {
+        [/if]
+        [let rec : RequestSpecification = testRoundtrip.requestspecification.receiver]
+        actorName = "[rec/]";
+        if (!specs.containsKey(actorName)) {
+            specs.put(actorName, new HashMap<String, Map<String, Map<String, Map<String, Map<String, String>>>>>());
+        }
+        actor = specs.get("[rec/]");
+        urlName = subst("[testRoundtrip.requestspecification.url/]");
+        if (!actor.containsKey(urlName)) {
+            actor.put(urlName, new HashMap<String, Map<String, Map<String, Map<String, String>>>>());
+        }
+        url = actor.get(urlName);
+        methodName = subst("[testRoundtrip.requestspecification.method/]");
+        if (!url.containsKey(methodName)) {
+            url.put(methodName, new HashMap<String, Map<String, Map<String, String>>>());
+        }
+        method = url.get(methodName);
+
+        roundtripName = "[testRoundtrip.testRoundtripName/]"; // this is always unique
+        method.put(roundtripName, new HashMap<String, Map<String, String>>());
+        roundtrip = method.get(roundtripName);
+        roundtrip.put("status", new HashMap<String, String>());
+        roundtrip.put("requests", new HashMap<String, String>());
+        roundtrip.put("responses", new HashMap<String, String>());
+
+        status = roundtrip.get("status");
+        [let statusCode : IsIn = testRoundtrip.responsespecification.statusmatcher.oclAsType(IsIn)]
+        [for (val : String | statusCode.value)]
+        status.put("[val/]", "[val/]");
+        [/for]
+        [/let]
+
+        requests = roundtrip.get("requests");
+        [for (requestDatum : RequestDatum | testRoundtrip.requestspecification.requestdatum)]
+        requests.put("[requestDatum.variableName/]", subst("[requestDatum.value/]"));
+        [/for]
+
+        responses = roundtrip.get("responses");
+        [for (responseDatum : ResponseDatum | testRoundtrip.responsespecification.responsedatum)]
+        responses.put("[responseDatum.variableName/]", "[responseDatum.xPath/]");
+        [/for]
+        [/let]
+        [if (testRoundtrip.precondition->notEmpty())]
+        }
+        [/if]
+        [/for]
+
+
+        return specs;
+    }
+
     /// Helper method to make to templating in string variables above more clean.
 	private String subst(String source) {
 	    assert substitutor != null;
@@ -139,7 +211,7 @@ Thread.sleep([testRoundtrip.timing.sleepAfter/]);
 [template private generateAddRequestParams(requestSpecification : RequestSpecification)]
 	[if (requestSpecification.requestdatum->notEmpty())]
 		[for (requestDatum : RequestDatum | requestSpecification.requestdatum)]
-paramsMap.put("[requestDatum.variableName/]", "[requestDatum.value/]");
+paramsMap.putIfAbsent("[requestDatum.variableName/]", "[requestDatum.value/]");  // put only if the key doesn't exist to avoid infinite loops
 		[/for]
 	[/if]
 [/template]
@@ -148,7 +220,7 @@ paramsMap.put("[requestDatum.variableName/]", "[requestDatum.value/]");
 .auth().basic(subst("${[requestSpecification.receiver/].username}"), subst("${[requestSpecification.receiver/].password}"))
 	[if (requestSpecification.requestdatum->notEmpty())]
 		[for (requestDatum : RequestDatum | requestSpecification.requestdatum)]
-.param("[requestDatum.variableName/]", subst("${[requestDatum.variableName/]}"))
+.queryParam("[requestDatum.variableName/]", subst("${[requestDatum.variableName/]}"))
 		[/for]
 	[/if]
 .filter(responseFilter("[requestSpecification.receiver/].url"))
