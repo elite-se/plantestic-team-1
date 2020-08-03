@@ -202,7 +202,7 @@ public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
                 if(value.getClass().equals(String.class)){
                     String expected = (String) value;
                     String message = "Assert failed.\nExpected value was: " + expected + ", but actually got: " + paramsMap.get(key);
-                    assertEquals(message, expected, (String) paramsMap.get(key));
+                    assertEquals(expected, (String) paramsMap.get(key), message);
                 }
                 else if(value.getClass().isArray()){
                     Object['[]'/] expected = (Object['[]'/]) value;
