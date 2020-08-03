@@ -229,7 +229,7 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
 [testRoundtrip.generateExtractions()/]
 checkExpectations("[testRoundtrip.testRoundtripName/]");
 	[/if]
-	[if (testRoundtrip.timing.sleepAfter > 0)]
+	[if (testRoundtrip.timing.oclIsUndefined() = false and testRoundtrip.timing.sleepAfter > 0)]
 Thread.sleep([testRoundtrip.timing.sleepAfter/]);	
 	[/if]
 [/template]
