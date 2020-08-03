@@ -125,7 +125,6 @@ object Main {
             val targetFile = File(targetString)
             echo("Generated test ${targetFile.path}.")
 
-
             if ((execute == null || execute == false) && mock == null) return echo("The pipeline was successful.")
             if (execute == true && mock != null)
                 return echo("Cannot mock and execute tests at the same time! Please use multiple instances.")
@@ -160,8 +159,7 @@ object Main {
     fun executeTestCase(targetFile: File, configFile: File) {
         try {
             compileTests(targetFile, configFile)!!.call("test")
-        }
-        catch (e: org.joor.ReflectException) {
+        } catch (e: org.joor.ReflectException) {
             // Connection exception
             println(e.cause!!.cause)
             exitProcess(1)
@@ -180,7 +178,7 @@ object Main {
         while (true) {}
     }
 
-    private fun compileTests(targetFile: File, configFile: File) : Reflect? {
+    private fun compileTests(targetFile: File, configFile: File): Reflect? {
         val compiledTest = Reflect.compile(
             targetFile.nameWithoutExtension,
             targetFile.readText()
