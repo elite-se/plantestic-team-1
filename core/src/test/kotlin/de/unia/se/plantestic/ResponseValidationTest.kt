@@ -1,6 +1,5 @@
 package de.unia.se.plantestic
 
-import com.atlassian.oai.validator.restassured.OpenApiValidationFilter.OpenApiValidationException
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import io.kotlintest.Description
@@ -79,7 +78,8 @@ class ResponseValidationTest : StringSpec({
             compiledTest.call("test")
         }
         assertTrue(exception.cause!!.cause!! is AssertionFailedError, "Expected exception caused by" +
-                " Junit AssertionFailedError, it seems like a different exception occurred")
+                " Junit AssertionFailedError, it seems like a different exception occurred.\nActual Exception: " +
+                exception.cause!!.cause.toString() + " with message: " + exception.cause!!.cause!!.message)
     }
 }) {
     companion object {
