@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RequestResponsePairs:Scenario xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI"
     xmlns:RequestResponsePairs="http://www.example.org/RequestResponsePairs" scenarioName="complex_hello_puml">
-  <roundtrip roundtripName="roundtrip1" precondition="${testCondition} == 'SomeValue'">
+  <roundtrips roundtripName="roundtrip1" precondition="${testCondition} == 'SomeValue'">
     <httprequest httpMethod="POST" url="/hello/${id}">
       <httprequestdatum variableName="variableName" value="value"/>
       <httprequestdatum variableName="variableName2" value="value2"/>
@@ -11,5 +11,5 @@
       <httpresponsedatum variableName="variableName2" xPath="itemB"/>
       <httpStatus>200</httpStatus>
     </httpresponse>
-  </roundtrip>
+  </roundtrips>
 </RequestResponsePairs:Scenario>

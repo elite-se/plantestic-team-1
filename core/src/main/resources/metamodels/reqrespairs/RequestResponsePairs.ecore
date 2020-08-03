@@ -10,7 +10,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="roundtripName" lowerBound="1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="precondition" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="timing" eType="#//RoundtripTiming"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="timing" eType="#//RoundtripTiming" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="HttpRequest">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="httpMethod" ordered="false"
@@ -44,7 +44,7 @@
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="RoundtripTiming">
+  <eClassifiers xsi:type="ecore:EClass" name="RoundtripTiming" instanceTypeName="RoundtripTiming">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="sleepAfter" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         unsettable="true"/>
   </eClassifiers>

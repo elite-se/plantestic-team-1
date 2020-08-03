@@ -13,7 +13,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 // actor (receiver), url, method, roundtrip, requests/responses, variableName to get value/xPath (check out RestAssured.png)
 class AutoMocker(private val specs: Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>>, port: Int) {
     private val wireMockServer = WireMockServer(WireMockConfiguration.options().port(port).notifier(ConsoleNotifier(true)))
-    private val responseList = HashMap<String, String>()  // responseList is used to update variables with actual values
+    private val responseList = HashMap<String, String>() // responseList is used to update variables with actual values
 
     fun addMock(mockName: String) {
         // the actor is mocked => actorName = mockName
@@ -48,13 +48,13 @@ class AutoMocker(private val specs: Map<String, Map<String, Map<String, Map<Stri
         }
     }
 
-    private fun prepareResponse(status: Map<String, String>, responses: Map<String, String>) : ResponseDefinitionBuilder {
+    private fun prepareResponse(status: Map<String, String>, responses: Map<String, String>): ResponseDefinitionBuilder {
         return WireMock.aResponse()
-            .withStatus(status.keys.toList()[0].toInt())  // return first given status
+            .withStatus(status.keys.toList()[0].toInt()) // return first given status
             .withBody(ObjectMapper().writeValueAsString(responses))
     }
 
-    private fun prepareQueryMatcher(requests: Map<String, String>) : Map<String, StringValuePattern> {
+    private fun prepareQueryMatcher(requests: Map<String, String>): Map<String, StringValuePattern> {
         val queryMatcher = HashMap<String, StringValuePattern>()
         for ((key, value) in requests) {
             val modifiedValue = if (!value.contains('$')) value else responseList[value.substring(2, value.length - 1)]
