@@ -1,0 +1,11 @@
+id = '123'
+
+[A]
+    username = 'Test'
+    password = 'password'
+    path = '/testA'
+
+[B]
+    username = 'Test'
+    password = 'password'
+    path = '/mock/B'

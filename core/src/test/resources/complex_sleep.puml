@@ -1,0 +1,15 @@
+SEQUENCE @startuml
+
+PARTICIPANT A
+PARTICIPANT B
+
+GROUP sleepAfter(2000)
+	alt "${testCondition} == 'SomeValue'"
+	A -> B : POST "/hello/${id}" (variableName : "value", variableName2 : "value2")
+	activate B
+	B -> A : 200 - (variableName : "itemA", variableName2 : "itemB")
+	deactivate B
+	end
+END
+
+@enduml

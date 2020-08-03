@@ -1,0 +1,7 @@
+id = '123'
+testCondition = 'SomeValue'
+
+[B]
+    username = 'Test'
+    password = 'password'
+    path = '/mock/B'

@@ -5,89 +5,125 @@ configuration property diagramName : String;
 
 transformation puml2reqres(in input: puml, out output: reqres);
 
+property roundtripId : Integer = 1;
+
 main() {
     log('Started transforming PlantUML to RequestResponse pairs');
 
     assert fatal ( input.objectsOfType(UmlDiagram).umlDiagrams[SequenceUml]->size() = 1 )
         with log('Input does not contain exactly one SequenceDiagram');
 
-     input.objectsOfType(UmlDiagram).umlDiagrams[SequenceUml].map transformUmlDiagram();
+     input.objectsOfType(UmlDiagram).umlDiagrams[SequenceUml].map transformUmlDiagram2Scenario();
 }
 
-mapping SequenceUml::transformUmlDiagram(): Scenario {
-    scenarioName := diagramName + "_puml";
-    var roundtripId : Integer := 1;
+mapping SequenceUml::transformUmlDiagram2Scenario(): Scenario {
+	scenarioName := diagramName + "_puml";
+	roundtrips := self.umlElements->transformSequenceElements2Roundtrips(0, false);
+}
 
-    var umlElements : OrderedSet(SequenceElement) := self.umlElements->flattenSequenceElements();
-    var umlElementsSize : Integer := umlElements->size();
-    var umlElementsIndex : Integer := 1;
+mapping OrderedSet(SequenceElement)::transformSequenceElements2Roundtrips(sleepAfter: Integer, nested: Boolean): OrderedSet(Roundtrip) {
+	init {
+	    var umlElements : OrderedSet(SequenceElement) := self->flattenSequenceElements();
+	    var umlElementsSize : Integer := umlElements->size();
+	    var umlElementsIndex : Integer := 1;
 
-    while (umlElementsIndex <= umlElementsSize) {
-        var sequenceElement : SequenceElement := umlElements->at(umlElementsIndex);
-        if (sequenceElement.oclIsTypeOf(UseLeft)) {
-            var useLeft : UseLeft := sequenceElement.oclAsType(UseLeft);
-            var request : Request := useLeft.useLeft2request();
-            var httpRequestElement : HttpRequest := request.request2httpRequest();
-            httpRequestElement.receiver := useLeft.userTwo.name;
+	    while (umlElementsIndex <= umlElementsSize) {
+	        var sequenceElement : SequenceElement := umlElements->at(umlElementsIndex);
+	        
+	        if (sequenceElement.oclIsTypeOf(UseLeft)) {
+	            var useLeft : UseLeft := sequenceElement.oclAsType(UseLeft);
+	            var request : Request := useLeft.useLeft2request();
+	            var httpRequestElement : HttpRequest := request.request2httpRequest();
+	            httpRequestElement.receiver := useLeft.userTwo.name;
+	
+	            umlElementsIndex := umlElementsIndex + 1;
+	            sequenceElement := umlElements->at(umlElementsIndex);
+	
+	            if (sequenceElement.oclIsTypeOf(UseLeft)) {
+	                useLeft := sequenceElement.oclAsType(UseLeft);
+	                var response : Response := useLeft.useLeft2response();
+	                var httpResponseElement : HttpResponse := response.response2httpResponse();
+	
+	                var roundtripElement : Roundtrip := generateRoundtrip(roundtripId, sleepAfter, httpRequestElement, httpResponseElement);
+	                result += roundtripElement;
+	                roundtripId := roundtripId + 1;
+	            }
+	            elif (sequenceElement.oclIsTypeOf(Alternative)) {
+	                var httpRequestElementCopy : HttpRequest := new HttpRequest();
+	                httpRequestElementCopy.httpMethod := httpRequestElement.httpMethod;
+	                httpRequestElementCopy.url := httpRequestElement.url;
+	                httpRequestElementCopy.httprequestdatum := httpRequestElement.httprequestdatum;
+	                httpRequestElementCopy.receiver := httpRequestElement.receiver;
+	
+	                var alternative : Alternative := sequenceElement.oclAsType(Alternative);
+	                useLeft := alternative.umlElements->at(1).oclAsType(UseLeft);
+	                var response : Response := useLeft.useLeft2response();
+	                var httpResponseElement : HttpResponse := response.response2httpResponse();
+	
+	                var roundtripElement : Roundtrip := generateRoundtrip(roundtripId, sleepAfter, httpRequestElementCopy, httpResponseElement);
+	                roundtripElement.precondition := alternative.text;
+	                result += roundtripElement;
+	                roundtripId := roundtripId + 1;
+	
+	                var elseElement : Else := alternative.elseBlocks->at(1).oclAsType(Else);
+	                useLeft := elseElement.umlElements->at(1).oclAsType(UseLeft);
+	                response := useLeft.useLeft2response();
+	                httpResponseElement := response.response2httpResponse();
+	
+	                roundtripElement := generateRoundtrip(roundtripId, sleepAfter, httpRequestElement, httpResponseElement);
+	                roundtripElement.precondition := elseElement.text;
+	                result += roundtripElement;
+	                roundtripId := roundtripId + 1;
+	            }
+	        }
+	        elif (sequenceElement.oclIsTypeOf(Alternative)) {
+	            var alternative : Alternative := sequenceElement.oclAsType(Alternative);
+	            var useLeft : UseLeft := alternative.umlElements->at(1).oclAsType(UseLeft);
+	            var request : Request := useLeft.useLeft2request();
+	            var httpRequestElement : HttpRequest := request.request2httpRequest();
+	
+	            useLeft := alternative.umlElements->at(2).oclAsType(UseLeft);
+	            var response : Response := useLeft.useLeft2response();
+	            var httpResponseElement : HttpResponse := response.response2httpResponse();
+	
+	            var roundtripElement : Roundtrip := generateRoundtrip(roundtripId, sleepAfter, httpRequestElement, httpResponseElement);
+	            roundtripElement.precondition := alternative.text;
+	            result += roundtripElement;
+	            roundtripId := roundtripId + 1;
+	        }
+	        elif (sequenceElement.oclIsTypeOf(Timing)) {
+	        	var timing : Timing := sequenceElement.oclAsType(Timing);
+	        	var timedRoundtrips : OrderedSet(Roundtrip) := timing.umlElements->transformSequenceElements2Roundtrips(timing.sleepAfter, true);
+	        	
+	        	var count : Integer := 1;
+	        	while (count <= timedRoundtrips->size()) {
+	        		result += timedRoundtrips->at(count);
+	        		count := count + 1;
+	        	}
+	        };
+	        
+	        umlElementsIndex := umlElementsIndex + 1;
+	    };
+	}
+}
 
-            umlElementsIndex := umlElementsIndex + 1;
-            sequenceElement := umlElements->at(umlElementsIndex);
-
-            if (sequenceElement.oclIsTypeOf(UseLeft)) {
-                useLeft := sequenceElement.oclAsType(UseLeft);
-                var response : Response := useLeft.useLeft2response();
-                var httpResponseElement : HttpResponse := response.response2httpResponse();
-
-                var roundtripElement : Roundtrip := generateRoundtrip(roundtripId, httpRequestElement, httpResponseElement);
-                roundtrip += roundtripElement;
-                roundtripId := roundtripId + 1;
-            }
-            elif (sequenceElement.oclIsTypeOf(Alternative)) {
-                var httpRequestElementCopy : HttpRequest := new HttpRequest();
-                httpRequestElementCopy.httpMethod := httpRequestElement.httpMethod;
-                httpRequestElementCopy.url := httpRequestElement.url;
-                httpRequestElementCopy.httprequestdatum := httpRequestElement.httprequestdatum;
-                httpRequestElementCopy.receiver := httpRequestElement.receiver;
-
-                var alternative : Alternative := sequenceElement.oclAsType(Alternative);
-                useLeft := alternative.umlElements->at(1).oclAsType(UseLeft);
-                var response : Response := useLeft.useLeft2response();
-                var httpResponseElement : HttpResponse := response.response2httpResponse();
-
-                var roundtripElement : Roundtrip := generateRoundtrip(roundtripId, httpRequestElementCopy, httpResponseElement);
-                roundtripElement.precondition := alternative.text;
-                roundtrip += roundtripElement;
-                roundtripId := roundtripId + 1;
-
-                var elseElement : Else := alternative.elseBlocks->at(1).oclAsType(Else);
-                useLeft := elseElement.umlElements->at(1).oclAsType(UseLeft);
-                response := useLeft.useLeft2response();
-                httpResponseElement := response.response2httpResponse();
-
-                roundtripElement := generateRoundtrip(roundtripId, httpRequestElement, httpResponseElement);
-                roundtripElement.precondition := elseElement.text;
-                roundtrip += roundtripElement;
-                roundtripId := roundtripId + 1;
-
-            };
+helper OrderedSet(SequenceElement)::print(depth : Integer) {
+	var sequenceElements : OrderedSet(SequenceElement);
+	self->forEach(umlElement) {
+		
+		var tabs : String = '';
+		var count = 0;
+		while (count < depth) {
+			tabs := tabs + '  ';
+			count := count + 1;
+		};
+		
+		log(tabs + umlElement.toString());
+		
+        if (umlElement.oclIsKindOf(UmlElementsContainer)) {
+            umlElement.oclAsType(UmlElementsContainer).umlElements->print(depth + 1);
         }
-        elif (sequenceElement.oclIsTypeOf(Alternative)) {
-            var alternative : Alternative := sequenceElement.oclAsType(Alternative);
-            var useLeft : UseLeft := alternative.umlElements->at(1).oclAsType(UseLeft);
-            var request : Request := useLeft.useLeft2request();
-            var httpRequestElement : HttpRequest := request.request2httpRequest();
-
-            useLeft := alternative.umlElements->at(2).oclAsType(UseLeft);
-            var response : Response := useLeft.useLeft2response();
-            var httpResponseElement : HttpResponse := response.response2httpResponse();
-
-            var roundtripElement : Roundtrip := generateRoundtrip(roundtripId, httpRequestElement, httpResponseElement);
-            roundtripElement.precondition := alternative.text;
-            roundtrip += roundtripElement;
-            roundtripId := roundtripId + 1;
-        };
-        umlElementsIndex := umlElementsIndex + 1;
-    };
+	}
 }
 
 helper OrderedSet(SequenceElement)::flattenSequenceElements():OrderedSet(SequenceElement) {
@@ -104,12 +140,22 @@ helper OrderedSet(SequenceElement)::flattenSequenceElements():OrderedSet(Sequenc
         elif (umlElement.oclIsTypeOf(Activate)) {
             var activate : Activate := umlElement.oclAsType(Activate);
             sequenceElements += activate.umlElements->flattenSequenceElements();
+        }
+        elif (umlElement.oclIsTypeOf(Timing)) {
+        	var timing : Timing := umlElement.oclAsType(Timing);
+        	sequenceElements += timing.map flattenTiming();
         };
     };
     return sequenceElements;
 }
 
-mapping Alternative::flattenAlternative():Alternative {
+mapping Timing::flattenTiming(): Timing {
+	
+	umlElements += self.umlElements->flattenSequenceElements();
+    sleepAfter := self.sleepAfter;
+}
+
+mapping Alternative::flattenAlternative(): Alternative {
     umlElements += self.umlElements->flattenSequenceElements();
     elseBlocks += self.elseBlocks->at(1).oclAsType(Else).map flattenElse();
     text := self.text;
@@ -138,9 +184,13 @@ helper UseLeft::useLeft2request():Request {
     return requestresponse.oclAsType(Request);
 }
 
-helper generateRoundtrip(roundtripId : Integer, httpRequest : HttpRequest, httpResponse : HttpResponse):Roundtrip {
+helper generateRoundtrip(roundtripId : Integer, sleepAfter : Integer, httpRequest : HttpRequest, httpResponse : HttpResponse):Roundtrip {    
+    var timing : RoundtripTiming := new RoundtripTiming();
+    timing.sleepAfter := sleepAfter;
+    
     var roundtripElement : Roundtrip := new Roundtrip();
     roundtripElement.roundtripName := "roundtrip" + roundtripId.toString();
+    roundtripElement.timing := timing;
     roundtripElement.httprequest := httpRequest;
     roundtripElement.httpresponse := httpResponse;
     return roundtripElement;

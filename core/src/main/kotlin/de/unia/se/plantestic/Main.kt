@@ -5,7 +5,12 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import org.joor.Reflect
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+import kotlin.system.exitProcess
 
 object Main {
 
@@ -69,6 +74,17 @@ object Main {
         |username = "admin"
         |password = "admin"
         |
+        |EXECUTING TESTS
+        |===============
+        |
+        |Tests can be executed by calling the --execute flag with the required input.puml and conf.toml files
+        |
+        |MOCKING COMPONENTS
+        |==================
+        |
+        |All services which are called at least once can be mocked using --mock="ServiceA,ServiceB". Mocking does not
+        |work at the same time with executing.
+        |
         |LEGAL
         |=====
         |
@@ -78,27 +94,49 @@ object Main {
 
         private val input: String by option(help = "Path to the PlantUML file containing the API specification.")
             .required()
-        private val output: String by option(help = "Output folder where the test cases should be written to. Default is '.../test-suite/tests'")
+        private val output: String by option(help = "Output folder where the test cases should be written to. Default is '../test-suite/tests'")
             .default("../test-suite/tests")
-        private val tomlTemplateOutput: String by option("--tomlTemplateOutput", help = "Output folder where the toml templates should be written to. Default is '.../test-suite/config'")
+        private val execute: Boolean? by option(help = "Run the pipeline and execute the test").flag(default = false)
+        private val config: String? by option(help = ".toml file which is to be used by the pipeline")
+        private val mock: String? by option(help = ".toml file which is to be used by the pipeline")
+        private val tomlTemplateOutput: String by option("--tomlTemplateOutput", help = "Output folder where the toml templates should be written to. Default is '../test-suite/config'")
             .default("../test-suite/config")
         private val dontGenerateTomlTemplate: Boolean by option("--dontGenerateTomlTemplate", help = "Prevent generation of toml templates for the generated tests").flag()
 
         override fun run() {
             val inputFile = File(input).normalize()
             val outputFolder = File(output).normalize()
+            val tempOutputFolder = File("$output/temp").normalize()
+
+            if (!inputFile.exists()) return echo("Input file ${inputFile.absolutePath} does not exist.")
             val tomlOutputFolder = File(tomlTemplateOutput).normalize()
 
-            if (!inputFile.exists()) {
-                echo("Input file ${inputFile.absolutePath} does not exist.")
-                return
+            echo("###Welcome to the plantestic pipeline###")
+            if (dontGenerateTomlTemplate) {
+                runTransformationPipeline(inputFile, tempOutputFolder)
+            } else {
+                runTransformationPipeline(inputFile, tempOutputFolder, tomlOutputFolder)
             }
 
-            if (dontGenerateTomlTemplate) {
-                runTransformationPipeline(inputFile, outputFolder)
-            } else {
-                runTransformationPipeline(inputFile, outputFolder, tomlOutputFolder)
+            val generatedSourceFile = tempOutputFolder.listFiles()?.first()
+                ?: throw Exception("Something went wrong with generating the file.")
+            val targetString = outputFolder.absolutePath + "/" + generatedSourceFile.name
+            Files.move(generatedSourceFile.toPath(), Paths.get(targetString), StandardCopyOption.REPLACE_EXISTING)
+            val targetFile = File(targetString)
+            echo("Generated test ${targetFile.path}.")
+
+            if ((execute == null || execute == false) && mock == null) return echo("The pipeline was successful.")
+            if (execute == true && mock != null)
+                return echo("Cannot mock and execute tests at the same time! Please use multiple instances.")
+            if (config == null) return echo("Config file must be defined if the execute flag is used.")
+            val configFile = File(config).normalize()
+            if (!configFile.exists()) return echo("Config file ${configFile.absolutePath} does not exist.")
+            if (execute == true) executeTestCase(targetFile, configFile)
+            if (mock != null) {
+                echo("Files were prepared and the mocks are being served at http://localhost:8080")
+                serveMocks(targetFile, configFile, mock.toString())
             }
+            return echo("The pipeline was successful.")
         }
     }
 
@@ -116,6 +154,38 @@ object Main {
             println("Generating toml template into $tomlTemplateOutput")
             AcceleoTomlGenerator.generateToml(restAssuredModel, tomlTemplateOutput)
         }
+    }
+
+    fun executeTestCase(targetFile: File, configFile: File) {
+        try {
+            compileTests(targetFile, configFile)!!.call("test")
+        } catch (e: org.joor.ReflectException) {
+            // Connection exception
+            println(e.cause!!.cause)
+            exitProcess(1)
+        }
+        println("The test was successful")
+    }
+
+    fun serveMocks(targetFile: File, configFile: File, mockList: String) {
+        val specs = compileTests(targetFile, configFile)!!.call("testingSpecification")!!
+            .get() as Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>>
+        println("The specification is as following: $specs")
+        val mocks = mockList.split(",")
+        val wireMockServer = AutoMocker(specs, 8080)
+        for (mock in mocks) wireMockServer.addMock(mock)
+        wireMockServer.start()
+        while (true) {}
+    }
+
+    private fun compileTests(targetFile: File, configFile: File): Reflect? {
+        val compiledTest = Reflect.compile(
+            targetFile.nameWithoutExtension,
+            targetFile.readText()
+        ).create()
+        compiledTest.call("setConfigFilePath", configFile.path)
+        compiledTest.call("setupConfig")
+        return compiledTest
     }
 
     @JvmStatic

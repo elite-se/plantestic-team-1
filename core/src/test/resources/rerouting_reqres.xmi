@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RequestResponsePairs:Scenario xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI"
     xmlns:RequestResponsePairs="http://www.example.org/RequestResponsePairs" scenarioName="rerouting_puml">
-  <roundtrip roundtripName="roundtrip1">
+  <roundtrips roundtripName="roundtrip1">
     <httprequest httpMethod="POST" url="/ccc/rerouteOptions" receiver="CRS">
       <httprequestdatum variableName="countryCode" value="${countryCode}"/>
       <httprequestdatum variableName="positionCountryCode" value="${positionCountryCode}"/>
@@ -13,8 +13,8 @@
       <httpresponsedatum variableName="warmhandover" xPath="/WARMHANDOVER"/>
       <httpStatus>200</httpStatus>
     </httpresponse>
-  </roundtrip>
-  <roundtrip roundtripName="roundtrip2" precondition="${voiceEstablished} == true">
+  </roundtrips>
+  <roundtrips roundtripName="roundtrip2" precondition="${voiceEstablished} == true">
     <httprequest httpMethod="GET" url="/ccc/events/${eventId}/isconnected" receiver="VM"/>
     <httpresponse>
       <httpresponsedatum variableName="eventid1" xPath="/VoiceStatus/eventId1"/>
@@ -22,13 +22,13 @@
       <httpresponsedatum variableName="agent2" xPath="/VoiceStatus/agent2/connectionStatus"/>
       <httpStatus>200</httpStatus>
     </httpresponse>
-  </roundtrip>
-  <roundtrip roundtripName="roundtrip3" precondition="${voiceEstablished} == false">
+  </roundtrips>
+  <roundtrips roundtripName="roundtrip3" precondition="${voiceEstablished} == false">
     <httprequest httpMethod="GET" url="/ccc/events/${eventId}/isconnected" receiver="VM"/>
     <httpresponse>
       <httpStatus>400</httpStatus>
       <httpStatus>404</httpStatus>
       <httpStatus>500</httpStatus>
     </httpresponse>
-  </roundtrip>
+  </roundtrips>
 </RequestResponsePairs:Scenario>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RestAssured:TestScenario xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:RestAssured="http://www.example.org/RestAssured" testScenarioName="xcall">
-  <testroundtrip testRoundtripName="roundtrip1">
+  <testroundtrips testRoundtripName="roundtrip1">
     <requestspecification method="GET" url="/vehicle/internal/${vin}" receiver="DataService"/>
     <responsespecification>
       <bodymatchergroup>
@@ -22,8 +22,8 @@
       <responsedatum variableName="positionCountry" xPath="/positionCountry"/>
       <responsedatum variableName="brand" xPath="/brand"/>
     </responsespecification>
-  </testroundtrip>
-  <testroundtrip testRoundtripName="roundtrip2">
+  </testroundtrips>
+  <testroundtrips testRoundtripName="roundtrip2">
     <requestspecification method="POST" url="routingTargets/find" receiver="CRS">
       <requestdatum variableName="eventId" value="${eventId}"/>
       <requestdatum variableName="serviceType" value="${serviceType}"/>
@@ -43,8 +43,8 @@
       </statusmatcher>
       <responsedatum variableName="voiceTargets" xPath="/voiceTargets"/>
     </responsespecification>
-  </testroundtrip>
-  <testroundtrip testRoundtripName="roundtrip3" precondition="${xcsServiceType} == 'ACall'">
+  </testroundtrips>
+  <testroundtrips testRoundtripName="roundtrip3" precondition="${xcsServiceType} == 'ACall'">
     <requestspecification method="PUT" url="xcs/notify/${eventId}">
       <requestdatum variableName="homeCountry" value="${homeCountry}"/>
       <requestdatum variableName="positionCountry" value="${positionCountry}"/>
@@ -56,8 +56,8 @@
         <value>200</value>
       </statusmatcher>
     </responsespecification>
-  </testroundtrip>
-  <testroundtrip testRoundtripName="roundtrip4" precondition="${xcsServiceType} == 'BCall'">
+  </testroundtrips>
+  <testroundtrips testRoundtripName="roundtrip4" precondition="${xcsServiceType} == 'BCall'">
     <requestspecification method="PUT" url="xcs/notify/${eventId}">
       <requestdatum variableName="homeCountry" value="${homeCountry}"/>
       <requestdatum variableName="positionCountry" value="${positionCountry}"/>
@@ -69,8 +69,8 @@
         <value>200</value>
       </statusmatcher>
     </responsespecification>
-  </testroundtrip>
-  <testroundtrip testRoundtripName="roundtrip5">
+  </testroundtrips>
+  <testroundtrips testRoundtripName="roundtrip5">
     <requestspecification method="POST" url="xcs/eventReceived" receiver="CCC">
       <requestdatum variableName="eventId" value="${eventId}"/>
       <requestdatum variableName="serviceType" value="${serviceType}"/>
@@ -84,8 +84,8 @@
         <value>200</value>
       </statusmatcher>
     </responsespecification>
-  </testroundtrip>
-  <testroundtrip testRoundtripName="roundtrip6">
+  </testroundtrips>
+  <testroundtrips testRoundtripName="roundtrip6">
     <requestspecification method="POST" url="/setupCall" receiver="VM">
       <requestdatum variableName="eventId" value="${eventId}"/>
       <requestdatum variableName="vin" value="${vin}"/>
@@ -97,5 +97,5 @@
         <value>200</value>
       </statusmatcher>
     </responsespecification>
-  </testroundtrip>
+  </testroundtrips>
 </RestAssured:TestScenario>

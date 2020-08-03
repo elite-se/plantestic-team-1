@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RequestResponsePairs:Scenario xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI"
     xmlns:RequestResponsePairs="http://www.example.org/RequestResponsePairs" scenarioName="xcall_puml">
-  <roundtrip roundtripName="roundtrip1">
+  <roundtrips roundtripName="roundtrip1">
     <httprequest httpMethod="GET" url="/vehicle/internal/${vin}" receiver="DataService"/>
     <httpresponse>
       <httpresponsedatum variableName="homeCountry" xPath="/homeCountry"/>
@@ -9,8 +9,8 @@
       <httpresponsedatum variableName="brand" xPath="/brand"/>
       <httpStatus>200</httpStatus>
     </httpresponse>
-  </roundtrip>
-  <roundtrip roundtripName="roundtrip2">
+  </roundtrips>
+  <roundtrips roundtripName="roundtrip2">
     <httprequest httpMethod="POST" url="routingTargets/find" receiver="CRS">
       <httprequestdatum variableName="eventId" value="${eventId}"/>
       <httprequestdatum variableName="serviceType" value="${serviceType}"/>
@@ -23,8 +23,8 @@
       <httpresponsedatum variableName="voiceTargets" xPath="/voiceTargets"/>
       <httpStatus>200</httpStatus>
     </httpresponse>
-  </roundtrip>
-  <roundtrip roundtripName="roundtrip3" precondition="${xcsServiceType} == 'ACall'">
+  </roundtrips>
+  <roundtrips roundtripName="roundtrip3" precondition="${xcsServiceType} == 'ACall'">
     <httprequest httpMethod="PUT" url="xcs/notify/${eventId}">
       <httprequestdatum variableName="homeCountry" value="${homeCountry}"/>
       <httprequestdatum variableName="positionCountry" value="${positionCountry}"/>
@@ -33,8 +33,8 @@
     <httpresponse>
       <httpStatus>200</httpStatus>
     </httpresponse>
-  </roundtrip>
-  <roundtrip roundtripName="roundtrip4" precondition="${xcsServiceType} == 'BCall'">
+  </roundtrips>
+  <roundtrips roundtripName="roundtrip4" precondition="${xcsServiceType} == 'BCall'">
     <httprequest httpMethod="PUT" url="xcs/notify/${eventId}">
       <httprequestdatum variableName="homeCountry" value="${homeCountry}"/>
       <httprequestdatum variableName="positionCountry" value="${positionCountry}"/>
@@ -43,8 +43,8 @@
     <httpresponse>
       <httpStatus>200</httpStatus>
     </httpresponse>
-  </roundtrip>
-  <roundtrip roundtripName="roundtrip5">
+  </roundtrips>
+  <roundtrips roundtripName="roundtrip5">
     <httprequest httpMethod="POST" url="xcs/eventReceived" receiver="CCC">
       <httprequestdatum variableName="eventId" value="${eventId}"/>
       <httprequestdatum variableName="serviceType" value="${serviceType}"/>
@@ -55,8 +55,8 @@
     <httpresponse>
       <httpStatus>200</httpStatus>
     </httpresponse>
-  </roundtrip>
-  <roundtrip roundtripName="roundtrip6">
+  </roundtrips>
+  <roundtrips roundtripName="roundtrip6">
     <httprequest httpMethod="POST" url="/setupCall" receiver="VM">
       <httprequestdatum variableName="eventId" value="${eventId}"/>
       <httprequestdatum variableName="vin" value="${vin}"/>
@@ -65,5 +65,5 @@
     <httpresponse>
       <httpStatus>200</httpStatus>
     </httpresponse>
-  </roundtrip>
+  </roundtrips>
 </RequestResponsePairs:Scenario>

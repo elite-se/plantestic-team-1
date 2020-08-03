@@ -1,0 +1,42 @@
+id = "123"
+eventId = "645"
+vin = "987"
+voiceEstablished = true
+countryCode1 = "DE"
+positionCountryCode1 = "West"
+sourceEventType1 = "Trace"
+
+[VM]
+    username = "Test"
+    password = "123test"
+    path = "/mock/VM"
+
+[CRS]
+    username = "Test"
+    password = "123test"
+    path = "/mock/CRS"
+
+[CCC]
+    username = "Test"
+    password = "123test"
+    path = "/mock/CCC"
+
+[XCS]
+    username = "Test"
+    password = "123test"
+    path = "/mock/XCS"
+
+[DataService]
+    username = "Test"
+    password = "123test"
+    path = "/mock/DataService"
+
+[EventNotifier]
+    username = "Test"
+    password = "123test"
+    path = "/mock/EventNotifier"
+
+[ELOS]
+    username = "Test"
+    password = "123test"
+    path = "/mock/ELOS"

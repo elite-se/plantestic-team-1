@@ -87,7 +87,7 @@ class SwaggerResponseValidationTest : StringSpec({
             .getResource("minimal_hello_config_minimal_swagger.toml")!!.toURI())
 
         private val OUTPUT_FOLDER = File(Thread.currentThread().contextClassLoader
-            .getResource("code-generation")!!.toExternalForm(), "AcceleoGeneratorTest/GeneratedCode")
+            .getResource("code-generation")!!.file, "AcceleoGeneratorTest/GeneratedCode")
 
         fun printCode(file: File) {
             file.readLines().forEach { line -> println(line) }

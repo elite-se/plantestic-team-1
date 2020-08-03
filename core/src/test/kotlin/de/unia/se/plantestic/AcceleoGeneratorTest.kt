@@ -101,7 +101,7 @@ class AcceleoGeneratorTest : StringSpec({
             .getResource("xcall_config.toml")!!.toURI())
 
         private val OUTPUT_FOLDER = File(Thread.currentThread().contextClassLoader
-            .getResource("code-generation")!!.toExternalForm(), "AcceleoGeneratorTest/GeneratedCode")
+            .getResource("code-generation")!!.file, "AcceleoGeneratorTest/GeneratedCode")
 
         fun printCode(file: File) {
             file.readLines().forEach { line -> println(line) }
