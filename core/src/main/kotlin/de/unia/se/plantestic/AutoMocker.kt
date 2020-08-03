@@ -8,7 +8,6 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.matching.StringValuePattern
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException
 
 // Map<String, Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>> is meant as a multi key hashmap which uses
 // actor (receiver), url, method, roundtrip, requests/responses, variableName to get value/xPath (check out RestAssured.png)
@@ -44,7 +43,8 @@ class AutoMocker(private val specs: Map<String, Map<String, Map<String, Map<Stri
             "PATCH" -> WireMock.patch(matchPath)
             "PUT" -> WireMock.put(matchPath)
             "DELETE" -> WireMock.delete(matchPath)
-            else -> throw ValueException("The method has to be empty (to assume GET) or POST! The method was $methodName.")
+            else -> throw Exception(
+                "The method has to be empty (to assume GET), GET, POST, PATCH, PUT or DELETE! The method was $methodName.")
         }
     }
 
