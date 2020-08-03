@@ -33,7 +33,7 @@ mapping OrderedSet(SequenceElement)::transformSequenceElements2Roundtrips(sleepA
 	        if (sequenceElement.oclIsTypeOf(UseLeft)) {
 	            var useLeft : UseLeft := sequenceElement.oclAsType(UseLeft);
 	            var request : Request := useLeft.useLeft2request();
-	            var httpRequestElement : HttpRequest := request.request2httpRequest();
+	            var httpRequestElement : HttpRequest := request.request2httpRequest();          
 	            httpRequestElement.receiver := useLeft.userTwo.name;
 	
 	            umlElementsIndex := umlElementsIndex + 1;
@@ -81,6 +81,7 @@ mapping OrderedSet(SequenceElement)::transformSequenceElements2Roundtrips(sleepA
 	            var useLeft : UseLeft := alternative.umlElements->at(1).oclAsType(UseLeft);
 	            var request : Request := useLeft.useLeft2request();
 	            var httpRequestElement : HttpRequest := request.request2httpRequest();
+	            httpRequestElement.receiver := useLeft.userTwo.name;
 	
 	            useLeft := alternative.umlElements->at(2).oclAsType(UseLeft);
 	            var response : Response := useLeft.useLeft2response();
