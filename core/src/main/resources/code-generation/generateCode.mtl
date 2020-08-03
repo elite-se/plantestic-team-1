@@ -25,6 +25,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
 
 	Map<String, Object> paramsMap = new HashMap();
@@ -185,6 +188,29 @@ public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
         }
         return resultMap;
 	}
+
+    ///Check if Expectations from Toml File equal the actual value that is returned from roundtrip
+	private void checkExpectations(String roundtrip){
+        Map<String, Object> roundtripChecksMap = (Map<String, Object>) new Toml().read(new File(tomlFilePath)).toMap().get("RoundtripChecks");
+        if(roundtripChecksMap != null){
+            Map<String, Object> roundtripMap = (Map<String, Object>) roundtripChecksMap.get(roundtrip);
+            for(String key : roundtripMap.keySet()){
+                Object value = roundtripMap.get(key);
+                if(value == null){
+                    continue;
+                }
+                if(value.getClass().equals(String.class)){
+                    String expected = (String) value;
+                    String message = "Assert failed.\nExpected value was: " + expected + ", but actually got: " + paramsMap.get(key);
+                    assertEquals(expected, (String) paramsMap.get(key), message);
+                }
+                else if(value.getClass().isArray()){
+                    Object['[]'/] expected = (Object['[]'/]) value;
+                    assertArrayEquals(expected, (Object ['[]'/]) paramsMap.get(key));
+                }
+            }
+        }
+    }
 }
 [/file]
 [/template]
@@ -201,9 +227,9 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
         [testRoundtrip.responsespecification.generateThenPart()/];
 [if (testRoundtrip.responsespecification.responsedatum->notEmpty())]
 [testRoundtrip.generateExtractions()/]
-
+checkExpectations("[testRoundtrip.testRoundtripName/]");
 	[/if]
-	[if (testRoundtrip.timing.sleepAfter > 0)]
+	[if (testRoundtrip.timing.oclIsUndefined() = false and testRoundtrip.timing.sleepAfter > 0)]
 Thread.sleep([testRoundtrip.timing.sleepAfter/]);	
 	[/if]
 [/template]
