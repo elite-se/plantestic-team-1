@@ -166,9 +166,9 @@ public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
 	/// Helper method to determine the necessary filter for response validation.
 	/// If a Swagger file is specified, the filter returned checks the response format.
 	/// If not, an ErrorLoggingFilter is returned which does nothing but printing errors. Granted, kinda hacky.
-	private Filter responseFilter(String swaggerKey) {
-        if (paramsMap.containsKey(swaggerKey))
-            return new OpenApiValidationFilter(subst("${" + swaggerKey + "}"));
+	private Filter responseFilter(String receiver) {
+        if (paramsMap.containsKey(receiver + ".url"))
+            return new OpenApiValidationFilter(subst("${" + receiver + ".url}"));
         else
             return new ErrorLoggingFilter();
 	}
@@ -249,7 +249,7 @@ paramsMap.putIfAbsent("[requestDatum.variableName/]", "[requestDatum.value/]"); 
 .queryParam("[requestDatum.variableName/]", subst("${[requestDatum.variableName/]}"))
 		[/for]
 	[/if]
-.filter(responseFilter("[requestSpecification.receiver/].url"))
+.filter(responseFilter("[requestSpecification.receiver/]"))
 [/template]
 
 [template private generateWhenPart(requestSpecification : RequestSpecification) post(trim())]
