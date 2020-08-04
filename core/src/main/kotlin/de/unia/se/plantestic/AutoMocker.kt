@@ -31,7 +31,7 @@ class AutoMocker(private val specs: Map<String, Map<String, Map<String, Map<Stri
                         // containingCorrectRequests(pathWithMethod.willReturn(prepareResponse(status, responses)), requests))
                         pathWithMethod.willReturn(prepareResponse(status, responses))
                         .withQueryParams(prepareQueryMatcher(requests)) // see https://github.com/tomakehurst/wiremock/issues/383
-                        .withRequestBody(withJsonBodyIfDefined(requests)))
+                        .withRequestBody(withRequestBodyIfDefined(requests)))
                         // .withRequestBody(prepareBodyMatcher(requests)))
                 }
     }
@@ -58,7 +58,7 @@ class AutoMocker(private val specs: Map<String, Map<String, Map<String, Map<Stri
     private fun prepareQueryMatcher(requests: Map<String, String>): Map<String, StringValuePattern> {
         val queryMatcher = HashMap<String, StringValuePattern>()
         for ((key, value) in requests) {
-            if (key == "jsonBody") continue
+            if (key == "requestBody") continue
             val modifiedValue = if (!value.contains('$')) value else responseList[value.substring(2, value.length - 1)]
                 ?: error("The variable $value was found but no value could be assigned.")
             queryMatcher[key] = WireMock.equalTo(modifiedValue)
@@ -66,7 +66,7 @@ class AutoMocker(private val specs: Map<String, Map<String, Map<String, Map<Stri
         return queryMatcher
     }
 
-    private fun withJsonBodyIfDefined(requests: Map<String, String>): StringValuePattern {
+    private fun withRequestBodyIfDefined(requests: Map<String, String>): StringValuePattern {
         //val bodyToMatch = if ("jsonBody" in requests) requests["jsonBody"] else ""
         return WireMock.equalTo(requests["jsonBody"]) ?: WireMock.containing("")
     }
