@@ -1,3 +1,5 @@
+sampleVariable1 = "42"
+
 [B]
     username = 'Test'
     password = 'password'
@@ -6,5 +8,5 @@
 [Roundtrips]
     [Roundtrips.roundtrip1]
         variableName = "1234"
-        variableName2 = "42"
+        variableName2 = "${sampleVariable1}"
 

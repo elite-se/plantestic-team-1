@@ -200,7 +200,7 @@ public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
                     continue;
                 }
                 if(value.getClass().equals(String.class)){
-                    String expected = (String) value;
+                    String expected = subst((String) value);
                     String message = "Assert failed.\nExpected value was: " + expected + ", but actually got: " + paramsMap.get(key);
                     assertEquals(expected, (String) paramsMap.get(key), message);
                 }
