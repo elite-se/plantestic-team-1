@@ -7,6 +7,8 @@
 import com.moandjiezana.toml.Toml;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.ErrorLoggingFilter;
 import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
@@ -21,6 +23,7 @@ import javax.script.ScriptException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -163,6 +166,17 @@ public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
 	    return (Boolean) engine.eval(substCondition);
 	}
 
+	// Helper method to create a map of headers and header values from the config file for a given roundtrip
+	private Headers generateHeadersMap(String roundtripName) {
+	    String['['']'/] headerArray = (String['['']'/]) paramsMap.get("RoundtripChecks." + roundtripName + ".headers");
+        ArrayList<Header> headerList = new ArrayList();
+        for (String headerValuePair : headerArray) {
+            String['['']'/] headerValue = headerValuePair.split("#");
+        	headerList.add(new Header(headerValue['['/]0[']'/], headerValue['['/]1[']'/]));
+        }
+        return new Headers(headerList);
+	}
+
 	/// Helper method to determine the necessary filter for response validation.
 	/// If a Swagger file is specified, the filter returned checks the response format.
 	/// If not, an ErrorLoggingFilter is returned which does nothing but printing errors. Granted, kinda hacky.
@@ -221,6 +235,7 @@ public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
 	[/if]
 Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
         [testRoundtrip.requestspecification.generateGivenPart()/]
+        [testRoundtrip.generateHeaders()/]
     .when()
         [testRoundtrip.requestspecification.generateWhenPart()/]
     .then()
@@ -250,6 +265,10 @@ paramsMap.putIfAbsent("[requestDatum.variableName/]", "[requestDatum.value/]"); 
 		[/for]
 	[/if]
 .filter(responseFilter("[requestSpecification.receiver/]"))
+[/template]
+
+[template private generateHeaders(testRoundtrip : TestRoundtrip) post(trim())]
+.headers(generateHeadersMap("[testRoundtrip.testRoundtripName/]"))
 [/template]
 
 [template private generateWhenPart(requestSpecification : RequestSpecification) post(trim())]
