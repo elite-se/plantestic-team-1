@@ -167,7 +167,7 @@ public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
 	}
 
 	// Helper method to create a map of headers and header values from the config file for a given roundtrip
-	private Headers generateHeadersMap(String roundtripName) {
+	private Headers generateHeaders(String roundtripName) {
 	    String['['']'/] headerArray = (String['['']'/]) paramsMap.get("RoundtripChecks." + roundtripName + ".headers");
         ArrayList<Header> headerList = new ArrayList();
         for (String headerValuePair : headerArray) {
@@ -268,7 +268,7 @@ paramsMap.putIfAbsent("[requestDatum.variableName/]", "[requestDatum.value/]"); 
 [/template]
 
 [template private generateHeaders(testRoundtrip : TestRoundtrip) post(trim())]
-.headers(generateHeadersMap("[testRoundtrip.testRoundtripName/]"))
+.headers(generateHeaders("[testRoundtrip.testRoundtripName/]"))
 [/template]
 
 [template private generateWhenPart(requestSpecification : RequestSpecification) post(trim())]

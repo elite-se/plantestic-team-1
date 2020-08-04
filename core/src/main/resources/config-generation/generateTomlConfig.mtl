@@ -27,8 +27,8 @@
         [responseDatum.variableName/] = ""
             [/for]
         headers = [ '[' /]
-            "name#value",
-            "anothername#anothervalue"
+            #"name#value",
+            #"anothername#anothervalue"
         [ ']' /]
         [/for]
     [/if]
