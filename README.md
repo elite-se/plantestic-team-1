@@ -2,7 +2,159 @@
 ![plantestic](https://img.shields.io/badge/🌱-plantestic-green.svg)
 [![Build Status](https://travis-ci.com/FionaGuerin/plantestic.svg?token=qCz9ynu1x7xYBT4zA1MS&branch=master)](https://travis-ci.com/FionaGuerin/plantestic/builds)
 
+## New Features by Team 1 (2020):
+
+- Test-Suite to directly execute generated tests in your IDE
+- Automatic generation of .toml configuration files (with placeholders)
+- Response validation with swagger for each round trip (request -> response)
+- Response validation with variables in .toml files
+- Sending json payloads, configurable in .toml files
+- Introduction of "Sleep" blocks to delay a request
+- Generation of Mocks
+- Various bug fixes
+
+### Team 1 Members:
+
+- [Deniz](https://github.com/denizcandas)
+- [Marvin](https://github.com/aiquita)
+- [Erik](https://github.com/Porrum)
+- [Simon](https://github.com/SimonKostin98)
+- [Roman](https://github.com/RoAnBu)
+
+### How to use the new features:
+
+More in-depth examples might be available in: `core/src/test/resources`.
+
+- Test-Suite to directly execute generated tests in your IDE:
+
+  - Open the project with IntelliJ and run `./gradlew build` (see old documentation)
+
+  - The "Plantestic Run Example" run configuration for IntelliJ includes an example how tests can be generated
+
+  - Tests are by default generated into: `test-suite/tests`
+
+  - Toml Templates are generated into: `test-suite/config`
+
+  - Tests can be run by opening a test in `test-suite/tests` and clicking on the run icon on the left side of the code (in IntelliJ)
+
+  - Via the CLI various other options can be set: `./gradlew run --args="your-args-here"`
+
+    ```Options:
+      --input TEXT                Path to the PlantUML file containing the API
+                                  specification.
+      --output TEXT               Output folder where the test cases should be
+                                  written to. Default is '../test-suite/tests'
+      --execute                   Run the pipeline and execute the test
+      --config TEXT               .toml file which is to be used by the pipeline
+      --mock TEXT                 .toml file which is to be used by the pipeline
+      --tomlTemplateOutput TEXT   Output folder where the toml templates should be
+                                  written to. Default is '../test-suite/config'
+      --dontGenerateTomlTemplate  Prevent generation of toml templates for the
+                                  generated tests
+      -h, --help                  Show this message and exit```
+    ```
+
+- Automatic generation of .toml configuration files (with placeholders):
+
+  - Enabled by default. You just need to fill out the placeholders, remove lines you don't like or add/remove comments.
+
+- Response validation with swagger for each round trip (request -> response):
+
+  - We validate:
+
+    - Are all required parameters set in the request?
+    - Are all required parameters set in the response?
+    - Are parameters set which are not specified in the swagger (request & response)?
+
+  - The swagger file has to be set in the appropriate .toml file and looks like this:
+
+  - ```
+    [Roundtrips]
+        [Roundtrips.roundtrip3]
+            # swaggerUrl = ""
+        [Roundtrips.roundtrip1]
+            swaggerUrl = "/home/sample/git/plantestic/minimal_swagger_response.yml"
+            # uiswitch = ""
+            # reroute = ""
+            # warmhandover = ""
+        [Roundtrips.roundtrip2]
+            swaggerUrl = "https://petstore.swagger.io/v2/swagger.json"
+            # eventid1 = ""
+            # agent1 = ""
+            # agent2 = ""
+    ```
+
+  - In the example above, we check for required or unspecified fields in roundtrip1 and roundtrip2, but we don't do any checks in roundtrip3 (commented out)
+
+- Response validation with variables in .toml files
+
+  - Responses can be validated in two ways:
+
+    - Comparison with a hard coded string value from the .toml file
+    - Comparison with a variable, e.g. a variable that was returned in a request
+
+  - ```
+    [Roundtrips]
+        [Roundtrips.roundtrip1]
+            swaggerUrl = "/home/sample/git/plantestic/minimal_swagger_response.yml"
+            uiswitch = "123"
+            # reroute = ""
+            # warmhandover = ""
+        [Roundtrips.roundtrip2]
+            swaggerUrl = "https://petstore.swagger.io/v2/swagger.json"
+            eventid1 = "${eventId}"
+            # agent1 = ""
+            # agent2 = ""
+    ```
+
+  - In the example above we validate that the response for the first request contains a parameter with the value "123"
+
+  - In roundtrip2 we validate that the value of eventid1 equals the value of eventId. You can basically compare any variables.
+
+- Sending json payloads, configurable in .toml files:
+
+  - First set a parameter named *requestBody* in your request. 
+
+  - `User -> J : POST "/json/${id}" (requestBody : "${json}", query : "some_query")`
+
+  - Then add the variable in the .toml file (Note: the auto-generated .toml files doesn't include the json variable yet):
+
+  - ```
+    json = """{
+    "key": "value"}
+    """
+    ```
+
+  - The .toml format requires the use of triple-" when setting multi-line values
+
+- Introduction of "Sleep" blocks to delay a request:
+
+  - Example sleeps for 2 seconds after the request:
+
+  - ```
+    SEQUENCE @startuml
+    
+    PARTICIPANT A
+    PARTICIPANT B
+    
+    GROUP sleepAfter(2000)
+    	A -> B : GET "/hello"
+    	activate B
+    	B -> A : 200
+    	deactivate B
+    END
+    
+    @enduml
+    ```
+
+  - ![](core/src/test/resources/minimal_sleep.png)
+
+- Generation of Mocks see: [link](test-suite/mock-examples/README.txt)
+
+  
+
 ## Description
+
 The test case generator Plantestic produces test cases from a sequence diagram. 
 A sequence diagram models a sequence of interactions between objects. 
 A test case then checks for such an interaction whether it is implemented as the sequence diagram defines it. 
@@ -13,21 +165,18 @@ The test case then expects a response with status `200 OK` and date `Hello World
 
 ![./core/src/test/resources/minimal_hello.png](./core/src/test/resources/minimal_hello.png)
 
-```
-public void test() throws Exception {
-		try {
-			Response roundtrip1 = RestAssured.given()
-					.auth().basic(substitutor.replace("${B.username}"), substitutor.replace("${B.password}"))
-				.when()
-					.get(substitutor.replace("${B.path}") + substitutor.replace("/hello"))
-				.then()
-					.assertThat()
-					    .statusCode(IsIn.isIn(Arrays.asList(200)));
-		} catch (Exception exception) {
-			System.out.println("An error occured during evaluating the communication with testReceiver: ");
-			exception.printStackTrace();
-			throw exception;
-		}
+```java
+    @Test
+	public void test() throws Exception {
+		Response roundtrip1 = RestAssured.given()
+		        .auth().basic(subst("${B.username}"), subst("${B.password}"))
+		        .filter(responseFilter("Roundtrips.roundtrip1"))
+		    .when()
+		        .get(subst("${B.path}") + subst("/hello"))
+		    .then()
+		        .assertThat()
+		            .statusCode(IsIn.isIn(Arrays.asList(200)))        
+		        	.and().extract().response();
 	}
 ```
 
@@ -71,7 +220,7 @@ You can find Java SE Development Kit 8 under the website [https://www.oracle.com
 ### Input requirements
 The input is a PlantUML sequence diagram. 
 This sequence diagram contains several participants and interactions between the participants. 
-One participiant is the client who calls the test cases. The other participants are services of the implementation. 
+One participant is the client who calls the test cases. The other participants are services of the implementation. 
 In the example diagram, the client is `CCC` and the services are `CRS` and `Voicemanager`.
 
 An interaction contains a request from the client and a response from a service. 
@@ -218,10 +367,10 @@ public class Test {
 #### plantuml-eclipse-xtext
 The repository [plantuml-eclipse-xtext](https://github.com/Cooperate-Project/plantuml-eclipse-xtext) defines the grammar of PlantUML. 
 We pass this grammar to Xtext.
-   
+
 #### qvto-cli
 The repository [qvto-cli](https://github.com/mrcalvin/qvto-cli) demonstrates how QVT operations can be performed without Eclipse.
-   
+
 ### Literature
 #### Standalone Parsing with Xtext
 From the article [Standalone Parsing with Xtext](http://www.davehofmann.de/different-ways-of-parsing-with-xtext/) we learned how to use Xtext without Eclipse.
@@ -231,7 +380,7 @@ From the Wiki article [QVTOML/Examples/InvokeInJava](https://wiki.eclipse.org/QV
 
 #### Grammar-based Program Generation Based on Model Finding
 From the paper [Grammar-based Program Generation Based on Model Finding](http://www.informatik.uni-bremen.de/agra/doc/konf/13_idt_program_generation.pdf) we learned about the Eclipse Modeling Framework.
-   
+
 ## License
 Copyright [2019] [Stefan Grafberger, Fiona Guerin, Michelle Martin, Daniela Neupert, Andreas Zimmerer]
 
