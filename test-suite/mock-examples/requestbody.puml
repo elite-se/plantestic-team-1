@@ -1,0 +1,13 @@
+SEQUENCE @startuml
+
+PARTICIPANT User
+PARTICIPANT J
+
+User -> J : POST "/json/${id}" (requestBody : "${json}", query : "some_query")
+alt "'${testCondition}' == 'SomeValue'"
+J -> User : 200 - (variableName : "itemA", variableName2 : "itemB")
+else "'${testCondition}' != 'SomeValue'"
+J -> User : 404
+end
+
+@enduml

@@ -2,6 +2,7 @@ id = "123"
 eventId = "645"
 vin = "987"
 serviceType = "free"
+xcsServiceType = "ACall"
 
 [VM]
     username = "Test"

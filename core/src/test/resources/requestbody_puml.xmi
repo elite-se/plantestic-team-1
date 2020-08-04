@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<puml:UmlDiagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:puml="http://www.eclipse.plantuml/Puml">
+  <umlDiagrams xsi:type="puml:SequenceUml">
+    <umlElements xsi:type="puml:Participant" name="User"/>
+    <umlElements xsi:type="puml:Participant" name="J"/>
+    <umlElements xsi:type="puml:UseLeft" userOne="#//@umlDiagrams.0/@umlElements.0"
+        userTwo="#//@umlDiagrams.0/@umlElements.1">
+      <content xsi:type="puml:Request" method="POST" url="/json/${id}">
+        <requestParam name="requestBody" value="${json}"/>
+        <requestParam name="query" value="some_query"/>
+      </content>
+    </umlElements>
+    <umlElements xsi:type="puml:Alternative" text="'${testCondition}' == 'SomeValue'">
+      <umlElements xsi:type="puml:UseLeft" userOne="#//@umlDiagrams.0/@umlElements.1"
+          userTwo="#//@umlDiagrams.0/@umlElements.0">
+        <content xsi:type="puml:Response">
+          <code>200</code>
+          <extractParam name="variableName" value="itemA"/>
+          <extractParam name="variableName2" value="itemB"/>
+        </content>
+      </umlElements>
+      <elseBlocks xsi:type="puml:Else" text="'${testCondition}' != 'SomeValue'">
+        <umlElements xsi:type="puml:UseLeft" userOne="#//@umlDiagrams.0/@umlElements.1"
+            userTwo="#//@umlDiagrams.0/@umlElements.0">
+          <content xsi:type="puml:Response">
+            <code>404</code>
+          </content>
+        </umlElements>
+      </elseBlocks>
+    </umlElements>
+  </umlDiagrams>
+</puml:UmlDiagram>

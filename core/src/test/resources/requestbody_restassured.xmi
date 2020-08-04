@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RequestResponsePairs:Scenario xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:RequestResponsePairs="http://www.example.org/RequestResponsePairs" scenarioName="requestbody_puml">
+  <roundtrips roundtripName="roundtrip1" precondition="'${testCondition}' == 'SomeValue'">
+    <httprequest httpMethod="POST" url="/json/${id}" receiver="J">
+      <httprequestdatum variableName="requestBody" value="${json}"/>
+      <httprequestdatum variableName="query" value="some_query"/>
+    </httprequest>
+    <httpresponse>
+      <httpresponsedatum variableName="variableName" xPath="itemA"/>
+      <httpresponsedatum variableName="variableName2" xPath="itemB"/>
+      <httpStatus>200</httpStatus>
+    </httpresponse>
+    <timing sleepAfter="0"/>
+  </roundtrips>
+  <roundtrips roundtripName="roundtrip2" precondition="'${testCondition}' != 'SomeValue'">
+    <httprequest httpMethod="POST" url="/json/${id}" receiver="J"/>
+    <httpresponse>
+      <httpStatus>404</httpStatus>
+    </httpresponse>
+    <timing sleepAfter="0"/>
+  </roundtrips>
+</RequestResponsePairs:Scenario>

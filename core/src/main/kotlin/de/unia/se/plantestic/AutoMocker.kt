@@ -30,7 +30,8 @@ class AutoMocker(private val specs: Map<String, Map<String, Map<String, Map<Stri
                     else wireMockServer.stubFor(
                         // containingCorrectRequests(pathWithMethod.willReturn(prepareResponse(status, responses)), requests))
                         pathWithMethod.willReturn(prepareResponse(status, responses))
-                        .withQueryParams(prepareQueryMatcher(requests))) // see https://github.com/tomakehurst/wiremock/issues/383
+                        .withQueryParams(prepareQueryMatcher(requests)) // see https://github.com/tomakehurst/wiremock/issues/383
+                        .withRequestBody(withRequestBodyIfDefined(requests)))
                         // .withRequestBody(prepareBodyMatcher(requests)))
                 }
     }
@@ -57,11 +58,16 @@ class AutoMocker(private val specs: Map<String, Map<String, Map<String, Map<Stri
     private fun prepareQueryMatcher(requests: Map<String, String>): Map<String, StringValuePattern> {
         val queryMatcher = HashMap<String, StringValuePattern>()
         for ((key, value) in requests) {
+            if (key == "requestBody") continue
             val modifiedValue = if (!value.contains('$')) value else responseList[value.substring(2, value.length - 1)]
                 ?: error("The variable $value was found but no value could be assigned.")
             queryMatcher[key] = WireMock.equalTo(modifiedValue)
         }
         return queryMatcher
+    }
+
+    private fun withRequestBodyIfDefined(requests: Map<String, String>): StringValuePattern {
+        return WireMock.equalTo(requests["requestBody"]) ?: WireMock.containing("")
     }
 
     // exact Body Matcher, which fails with the xcall test
