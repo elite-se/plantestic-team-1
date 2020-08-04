@@ -67,7 +67,7 @@ class AutoMocker(private val specs: Map<String, Map<String, Map<String, Map<Stri
     }
 
     private fun withRequestBodyIfDefined(requests: Map<String, String>): StringValuePattern {
-        return WireMock.equalTo(requests["jsonBody"]) ?: WireMock.containing("")
+        return WireMock.equalTo(requests["requestBody"]) ?: WireMock.containing("")
     }
 
     // exact Body Matcher, which fails with the xcall test

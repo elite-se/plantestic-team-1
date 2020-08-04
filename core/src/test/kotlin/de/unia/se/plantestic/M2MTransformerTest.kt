@@ -66,7 +66,7 @@ class M2MTransformerTest : StringSpec({
         reqRespOutputModel.eContents().filter { f -> f.eClass().name == "Roundtrip" }.size shouldBe 6
     }
 
-    "[Puml->ReqRes] Transform jsonbody example" {
+    "[Puml->ReqRes] Transform requestbody example" {
         MetaModelSetup.doSetup()
 
         val pumlInputModel = ResourceSetImpl().getResource(URI.createFileURI(REQUESTBODY_PUML_INPUT_PATH), true).contents[0]
