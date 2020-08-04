@@ -1,0 +1,10 @@
+[B]
+    username = 'Test'
+    password = 'password'
+    path = ''
+
+[RoundtripChecks]
+    [RoundtripChecks.roundtrip1]
+        variableName = "1234"
+        variableName2 = "42"
+
