@@ -3,11 +3,11 @@ SEQUENCE @startuml
 PARTICIPANT A
 PARTICIPANT B
 
-A -> B : POST "/hello/${id}" (variableName : "value", variableName2 : "value2")
 alt "'${testCondition}' == 'SomeValue'"
+A -> B : POST "/hello/${id}" (variableName : "value", variableName2 : "value2")
+activate B
 B -> A : 200 - (variableName : "itemA", variableName2 : "itemB")
-else "'${testCondition}' != 'SomeValue'"
-B -> A : 404
+deactivate B
 end
 
 @enduml
