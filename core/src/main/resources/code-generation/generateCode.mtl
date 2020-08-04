@@ -191,7 +191,7 @@ public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
 
     ///Check if Expectations from Toml File equal the actual value that is returned from roundtrip
 	private void checkExpectations(String roundtrip){
-        Map<String, Object> roundtripChecksMap = (Map<String, Object>) new Toml().read(new File(tomlFilePath)).toMap().get("RoundtripChecks");
+        Map<String, Object> roundtripChecksMap = (Map<String, Object>) new Toml().read(new File(tomlFilePath)).toMap().get("Roundtrips");
         if(roundtripChecksMap != null){
             Map<String, Object> roundtripMap = (Map<String, Object>) roundtripChecksMap.get(roundtrip);
             for(String key : roundtripMap.keySet()){

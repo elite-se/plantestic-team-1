@@ -21,9 +21,9 @@
     [let testroundtrips : Set(TestRoundtrip) = TestRoundtrip.allInstances()->select(i : TestRoundtrip | i.testRoundtripName.oclIsInvalid() = false)->asSet()]
     [if (testroundtrips->notEmpty())]
 
-['['/]RoundtripChecks[']'/]
+['['/]Roundtrips[']'/]
         [for (testroundtrip : TestRoundtrip | testroundtrips)]
-    ['['/]RoundtripChecks.[testroundtrip.testRoundtripName/][']'/]
+    ['['/]Roundtrips.[testroundtrip.testRoundtripName/][']'/]
             [for (responseDatum : ResponseDatum | testroundtrip.responsespecification.responsedatum)]
         # [responseDatum.variableName/] = ""
             [/for]
