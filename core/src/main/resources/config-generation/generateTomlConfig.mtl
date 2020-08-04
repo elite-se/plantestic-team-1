@@ -15,7 +15,6 @@
     username = ""
     password = ""
     path = ""
-    # swaggerUrl = ""
         [/for]
     [/let]
     [let testroundtrips : Set(TestRoundtrip) = TestRoundtrip.allInstances()->select(i : TestRoundtrip | i.testRoundtripName.oclIsInvalid() = false)->asSet()]
@@ -24,6 +23,7 @@
 ['['/]Roundtrips[']'/]
         [for (testroundtrip : TestRoundtrip | testroundtrips)]
     ['['/]Roundtrips.[testroundtrip.testRoundtripName/][']'/]
+        # swaggerUrl = ""
             [for (responseDatum : ResponseDatum | testroundtrip.responsespecification.responsedatum)]
         # [responseDatum.variableName/] = ""
             [/for]

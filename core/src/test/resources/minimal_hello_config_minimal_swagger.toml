@@ -2,4 +2,7 @@
     username = 'Test'
     password = 'password'
     path = ''
-    swaggerUrl = 'src/test/resources/minimal_swagger_response.yml'
+
+[Roundtrips]
+    [Roundtrips.roundtrip1]
+        swaggerUrl = 'src/test/resources/minimal_swagger_response.yml'

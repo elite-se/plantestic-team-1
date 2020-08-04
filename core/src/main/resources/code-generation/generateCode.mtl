@@ -220,7 +220,7 @@ public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
 [testRoundtrip.requestspecification.generateAddRequestParams()/]
 	[/if]
 Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
-        [testRoundtrip.requestspecification.generateGivenPart()/]
+        [testRoundtrip.generateGivenPart()/]
     .when()
         [testRoundtrip.requestspecification.generateWhenPart()/]
     .then()
@@ -242,7 +242,8 @@ paramsMap.putIfAbsent("[requestDatum.variableName/]", "[requestDatum.value/]"); 
 	[/if]
 [/template]
 
-[template private generateGivenPart(requestSpecification : RequestSpecification) post(trim())]
+[template private generateGivenPart(testRoundtrip : TestRoundtrip) post(trim())]
+[let requestSpecification : RequestSpecification = testRoundtrip.requestspecification]
 .auth().basic(subst("${[requestSpecification.receiver/].username}"), subst("${[requestSpecification.receiver/].password}"))
 	[if (requestSpecification.requestdatum->notEmpty())]
 		[for (requestDatum : RequestDatum | requestSpecification.requestdatum)]
@@ -253,7 +254,8 @@ paramsMap.putIfAbsent("[requestDatum.variableName/]", "[requestDatum.value/]"); 
         [/if]
 		[/for]
 	[/if]
-.filter(responseFilter("[requestSpecification.receiver/]"))
+.filter(responseFilter("Roundtrips.[testRoundtrip.testRoundtripName/]"))
+[/let]
 [/template]
 
 [template private generateWhenPart(requestSpecification : RequestSpecification) post(trim())]
