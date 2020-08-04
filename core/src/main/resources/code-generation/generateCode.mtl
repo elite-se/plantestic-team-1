@@ -246,7 +246,11 @@ paramsMap.putIfAbsent("[requestDatum.variableName/]", "[requestDatum.value/]"); 
 .auth().basic(subst("${[requestSpecification.receiver/].username}"), subst("${[requestSpecification.receiver/].password}"))
 	[if (requestSpecification.requestdatum->notEmpty())]
 		[for (requestDatum : RequestDatum | requestSpecification.requestdatum)]
+		[if (requestDatum.variableName = 'jsonBody')]
+.body(subst("${[requestDatum.variableName/]}"))
+        [else]
 .queryParam("[requestDatum.variableName/]", subst("${[requestDatum.variableName/]}"))
+        [/if]
 		[/for]
 	[/if]
 .filter(responseFilter("[requestSpecification.receiver/]"))

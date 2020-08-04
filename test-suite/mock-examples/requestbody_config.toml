@@ -1,0 +1,16 @@
+id = '123'
+testCondition = 'SomeValue'
+json = """{
+"nested_map": {
+"string_map": {
+"first": "one",
+"second": "two",
+"third": "three"},
+"int_bool_int_list": [1, false, 3]},
+"key": "value"}
+"""
+
+[J]
+    username = 'Test'
+    password = 'password'
+    path = '/mock/J'
