@@ -167,8 +167,8 @@ public class [ 'Test_'.concat(testScenario.testScenarioName) /] {
 	/// If a Swagger file is specified, the filter returned checks the response format.
 	/// If not, an ErrorLoggingFilter is returned which does nothing but printing errors. Granted, kinda hacky.
 	private Filter responseFilter(String receiver) {
-        if (paramsMap.containsKey(receiver + ".url"))
-            return new OpenApiValidationFilter(subst("${" + receiver + ".url}"));
+        if (paramsMap.containsKey(receiver + ".swaggerUrl"))
+            return new OpenApiValidationFilter(subst("${" + receiver + ".swaggerUrl}"));
         else
             return new ErrorLoggingFilter();
 	}
