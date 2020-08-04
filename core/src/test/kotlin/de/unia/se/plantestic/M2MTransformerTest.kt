@@ -66,6 +66,20 @@ class M2MTransformerTest : StringSpec({
         reqRespOutputModel.eContents().filter { f -> f.eClass().name == "Roundtrip" }.size shouldBe 6
     }
 
+    "[Puml->ReqRes] Transform jsonbody example" {
+        MetaModelSetup.doSetup()
+
+        val pumlInputModel = ResourceSetImpl().getResource(URI.createFileURI(REQUESTBODY_PUML_INPUT_PATH), true).contents[0]
+
+        val reqRespOutputModel = M2MTransformer.transformPuml2ReqRes(pumlInputModel)
+        reqRespOutputModel shouldNotBe null
+
+        printModel(reqRespOutputModel)
+
+        reqRespOutputModel.eClass().name shouldBe "Scenario"
+        reqRespOutputModel.eContents().filter { f -> f.eClass().name == "Roundtrip" }.size shouldBe 2
+    }
+
     "[ReqRes->RestAssured] Transform minimal hello example" {
         MetaModelSetup.doSetup()
 
@@ -125,17 +139,34 @@ class M2MTransformerTest : StringSpec({
         restAssuredOutputModel.eClass().name shouldBe "TestScenario"
         restAssuredOutputModel.eContents().filter { f -> f.eClass().name == "TestRoundtrip" }.size shouldBe 6
     }
+
+    "[ReqRes->RestAssured] Transform requestbody example" {
+        MetaModelSetup.doSetup()
+
+        val reqresInputModel =
+            ResourceSetImpl().getResource(URI.createFileURI(REQUESTBODY_REQRES_INPUT_PATH), true).contents[0]
+
+        val restAssuredOutputModel = M2MTransformer.transformReqRes2RestAssured(reqresInputModel)
+        restAssuredOutputModel shouldNotBe null
+
+        printModel(restAssuredOutputModel)
+
+        restAssuredOutputModel.eClass().name shouldBe "TestScenario"
+        restAssuredOutputModel.eContents().filter { f -> f.eClass().name == "TestRoundtrip" }.size shouldBe 2
+    }
 }) {
     companion object {
         private val MINIMAL_HELLO_PUML_INPUT_PATH = Resources.getResource("minimal_hello_puml.xmi").path
         private val COMPLEX_HELLO_PUML_INPUT_PATH = Resources.getResource("complex_hello_puml.xmi").path
         private val REROUTING_PUML_INPUT_PATH = Resources.getResource("rerouting_puml.xmi").path
         private val XCALL_PUML_INPUT_PATH = Resources.getResource("xcall_puml.xmi").path
+        private val REQUESTBODY_PUML_INPUT_PATH = Resources.getResource("requestbody_puml.xmi").path
 
         private val MINIMAL_HELLO_REQRES_INPUT_PATH = Resources.getResource("minimal_hello_reqres.xmi").path
         private val COMPLEX_HELLO_REQRES_INPUT_PATH = Resources.getResource("complex_hello_reqres.xmi").path
         private val REROUTING_REQRES_INPUT_PATH = Resources.getResource("rerouting_reqres.xmi").path
         private val XCALL_REQRES_INPUT_PATH = Resources.getResource("xcall_reqres.xmi").path
+        private val REQUESTBODY_REQRES_INPUT_PATH = Resources.getResource("requestbody_reqres.xmi").path
 
         fun printModel(model: EObject) {
             val resource = ResourceSetImpl().createResource(URI.createURI("dummy:/test.ecore"))

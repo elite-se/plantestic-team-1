@@ -67,7 +67,6 @@ class AutoMocker(private val specs: Map<String, Map<String, Map<String, Map<Stri
     }
 
     private fun withRequestBodyIfDefined(requests: Map<String, String>): StringValuePattern {
-        //val bodyToMatch = if ("jsonBody" in requests) requests["jsonBody"] else ""
         return WireMock.equalTo(requests["jsonBody"]) ?: WireMock.containing("")
     }
 

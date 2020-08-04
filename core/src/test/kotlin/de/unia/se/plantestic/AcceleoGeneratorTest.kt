@@ -78,6 +78,24 @@ class AcceleoGeneratorTest : StringSpec({
         )!!.create()!!
         invokeCreation(compiledTest, XCALL_CONFIG_FILE.path)
     }
+
+    "Transform a Rest Assured EObject input to Java Code for requestbody" {
+        MetaModelSetup.doSetup()
+
+        val pumlInputModelURI = URI.createFileURI(REQUESTBODY_INPUT_FILE.path)
+        val pumlInputModel = ResourceSetImpl().getResource(pumlInputModelURI, true).contents[0]
+
+        AcceleoCodeGenerator.generateCode(pumlInputModel, OUTPUT_FOLDER)
+
+        // Now compile the resulting code to check for syntax errors
+        val generatedSourceFile = OUTPUT_FOLDER.listFiles()!!.first { f -> f.name == "Test_xcall.java" }
+        printCode(generatedSourceFile)
+        val compiledTest = Reflect.compile(
+            generatedSourceFile.nameWithoutExtension,
+            generatedSourceFile.readText()
+        )!!.create()!!
+        invokeCreation(compiledTest, REQUESTBODY_CONFIG_FILE.path)
+    }
 }) {
     companion object {
         private val MINIMAL_EXAMPLE_INPUT_FILE = File(Thread.currentThread().contextClassLoader
@@ -99,6 +117,11 @@ class AcceleoGeneratorTest : StringSpec({
             .getResource("xcall_restassured.xmi")!!.toURI())
         private val XCALL_CONFIG_FILE = File(Thread.currentThread().contextClassLoader
             .getResource("xcall_config.toml")!!.toURI())
+
+        private val REQUESTBODY_INPUT_FILE = File(Thread.currentThread().contextClassLoader
+            .getResource("requestbody_restassured.xmi")!!.toURI())
+        private val REQUESTBODY_CONFIG_FILE = File(Thread.currentThread().contextClassLoader
+            .getResource("requestbody_config.toml")!!.toURI())
 
         private val OUTPUT_FOLDER = File(Thread.currentThread().contextClassLoader
             .getResource("code-generation")!!.file, "AcceleoGeneratorTest/GeneratedCode")

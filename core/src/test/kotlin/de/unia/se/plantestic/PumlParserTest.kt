@@ -87,12 +87,28 @@ class PumlParserTest : StringSpec({
         (alternative.umlElements[0] as UseLeft).userOne.name shouldBe "XCS"
         ((alternative.umlElements[1] as Activate).umlElements[0] as UseLeft).userOne.name shouldBe "EventNotifier"
     }
+
+    "Parsing works for the requestbody example" {
+        MetaModelSetup.doSetup()
+
+        val umlDiagram = PumlParser.parse(REQUESTBODY_INPUT_PATH)
+        printModel(umlDiagram)
+
+        (umlDiagram.umlDiagrams[0] is SequenceUml) shouldBe true
+        val sequenceDiagram = umlDiagram.umlDiagrams[0] as SequenceUml
+        sequenceDiagram.umlElements.filterIsInstance<Participant>().size shouldBe 2
+
+        val alternative = sequenceDiagram.umlElements[3] as Alternative
+        alternative.text shouldBe "'\${testCondition}' == 'SomeValue'"
+        (alternative.umlElements[0] as UseLeft).userTwo.name shouldBe "User"
+    }
 }) {
     companion object {
         private val MINIMAL_HELLO_INPUT_PATH = Resources.getResource("minimal_hello.puml").path
         private val COMPLEX_HELLO_INPUT_PATH = Resources.getResource("complex_hello.puml").path
         private val REROUTE_INPUT_PATH = Resources.getResource("rerouting.puml").path
         private val XCALL_INPUT_PATH = Resources.getResource("xcall.puml").path
+        private val REQUESTBODY_INPUT_PATH = Resources.getResource("requestbody.puml").path
 
         fun printModel(model: EObject) {
             val resource = ResourceSetImpl().createResource(URI.createURI("dummy:/test.ecore"))
